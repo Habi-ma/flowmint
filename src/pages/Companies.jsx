@@ -94,7 +94,7 @@ export default function Companies() {
         >
           <div>
             <h1 className="text-3xl font-bold text-slate-900 mb-2">Registered Companies</h1>
-            <p className="text-slate-600 text-lg">Directory of businesses using CirclePay platform</p>
+            <p className="text-slate-600 text-lg">Directory of businesses using FLowmint platform</p>
           </div>
           
           <Link to={createPageUrl("Register")}>

@@ -95,7 +95,7 @@ export default function Layout({ children, currentPageName }) {
                   <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
                 </div>
                 <div>
-                  <h2 className="font-bold text-slate-900 text-lg">CirclePay</h2>
+                  <h2 className="font-bold text-slate-900 text-lg">Flowmint</h2>
                   <p className="text-xs text-slate-500 font-medium">Enterprise USDC Platform</p>
                 </div>
               </div>
@@ -200,7 +200,7 @@ export default function Layout({ children, currentPageName }) {
                 <SidebarTrigger className="hover:bg-slate-100 p-2 rounded-lg transition-colors duration-200" />
                 <div className="flex items-center gap-2">
                   <Wallet className="w-6 h-6 text-blue-600" />
-                  <h1 className="text-xl font-bold text-slate-900">CirclePay</h1>
+                  <h1 className="text-xl font-bold text-slate-900">Flowmint</h1>
                 </div>
               </div>
             </header>

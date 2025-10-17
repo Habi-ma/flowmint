@@ -106,7 +106,7 @@ CREATE TRIGGER transactions_updated_date
     EXECUTE FUNCTION update_updated_date();
 
 -- ============================================================================
--- USER TABLE (Extends Base44 built-in User entity)
+-- USER TABLE
 -- Manages team members with role-based access control
 -- ============================================================================
 
@@ -115,7 +115,7 @@ CREATE TABLE users (
     created_date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_date TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     
-    -- Base44 Built-in Fields (automatically included)
+    -- Base fields
     full_name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     role TEXT DEFAULT 'user',

@@ -43,7 +43,7 @@ export default function RegistrationSuccess({ company, onContinue }) {
 
           {/* Success Message */}
           <h2 className="text-3xl font-bold text-slate-900 mb-2">
-            Welcome to CirclePay!
+            Welcome to Flowmint!
           </h2>
           <p className="text-lg text-slate-600 mb-8">
             Your company has been successfully registered and your USDC wallet is ready.

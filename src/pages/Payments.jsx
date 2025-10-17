@@ -47,7 +47,7 @@ export default function Payments() {
 
   const loadCompanies = async () => {
     try {
-      const data = await Company.filter({ registration_status: 'active' }, '-created_date');
+      const data = await Company.search('', { status: 'active' });
       setCompanies(data);
     } catch (error) {
       console.error('Error loading companies:', error);

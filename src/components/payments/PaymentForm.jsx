@@ -20,8 +20,7 @@ export default function PaymentForm({
   companies,
   paymentData,
   setPaymentData,
-  selectedFromCompany,
-  setSelectedFromCompany,
+  userCompany,
   selectedToCompany,
   setSelectedToCompany,
   onSubmit,
@@ -33,13 +32,13 @@ export default function PaymentForm({
     setError('');
 
     // Validation
-    if (!selectedFromCompany || !selectedToCompany) {
-      setError('Please select both sender and recipient companies');
+    if (!selectedToCompany) {
+      setError('Please select a recipient company');
       return;
     }
 
-    if (selectedFromCompany.id === selectedToCompany.id) {
-      setError('Cannot send payment to the same company');
+    if (userCompany && userCompany.id === selectedToCompany.id) {
+      setError('Cannot send payment to your own company');
       return;
     }
 
@@ -48,10 +47,8 @@ export default function PaymentForm({
       return;
     }
 
-    if (parseFloat(paymentData.amount) > selectedFromCompany.wallet_balance) {
-      setError('Insufficient funds in sender wallet');
-      return;
-    }
+    // Note: Wallet balance validation will be done on the server side
+    // since basic company info doesn't include wallet_balance
 
     if (parseFloat(paymentData.amount) > 50000) {
       setError('Maximum payment amount is $50,000 USDC');
@@ -75,34 +72,33 @@ export default function PaymentForm({
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* From Company */}
+            {/* From Company - Display Only */}
             <div className="space-y-2">
               <Label className="text-sm font-semibold text-slate-700">From Company</Label>
-              <CompanySelector
-                companies={companies}
-                selected={selectedFromCompany}
-                onSelect={setSelectedFromCompany}
-                placeholder="Select sending company"
-                showBalance={true}
-              />
-              {selectedFromCompany && (
-                <div className="flex items-center gap-2 mt-2">
-                  <Wallet className="w-4 h-4 text-green-500" />
-                  <span className="text-sm text-slate-600">
-                    Available Balance: 
-                    <span className="font-semibold text-green-600 ml-1">
-                      ${selectedFromCompany.wallet_balance.toFixed(2)} USDC
-                    </span>
-                  </span>
+              <div className="p-3 border border-slate-200 rounded-lg bg-slate-50">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-100 to-blue-200 rounded-full flex items-center justify-center">
+                    <Building2 className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <div>
+                    <p className="font-semibold text-slate-900">{userCompany?.company_name}</p>
+                    <p className="text-xs text-slate-500">{userCompany?.business_email}</p>
+                  </div>
+                  <div className="ml-auto">
+                    <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                      <Wallet className="w-3 h-3 mr-1" />
+                      ${userCompany?.wallet_balance?.toFixed(2) || '0.00'}
+                    </Badge>
+                  </div>
                 </div>
-              )}
+              </div>
             </div>
 
             {/* To Company */}
             <div className="space-y-2">
               <Label className="text-sm font-semibold text-slate-700">To Company</Label>
               <CompanySelector
-                companies={companies.filter(c => c.id !== selectedFromCompany?.id)}
+                companies={companies}
                 selected={selectedToCompany}
                 onSelect={setSelectedToCompany}
                 placeholder="Select recipient company"
@@ -147,7 +143,7 @@ export default function PaymentForm({
             </div>
 
             {/* Payment Summary */}
-            {selectedFromCompany && selectedToCompany && paymentData.amount && (
+            {userCompany && selectedToCompany && paymentData.amount && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
@@ -173,12 +169,7 @@ export default function PaymentForm({
                   </div>
                 </div>
                 
-                {selectedFromCompany && parseFloat(paymentData.amount || 0) > selectedFromCompany.wallet_balance && (
-                  <div className="flex items-center gap-2 text-red-600 text-sm mt-2">
-                    <AlertTriangle className="w-4 h-4" />
-                    <span>Insufficient funds - Need ${(parseFloat(paymentData.amount || 0) - selectedFromCompany.wallet_balance).toFixed(2)} more</span>
-                  </div>
-                )}
+                {/* Wallet balance validation will be done on the server side */}
               </motion.div>
             )}
 
@@ -186,7 +177,7 @@ export default function PaymentForm({
             <Button
               type="submit"
               className="w-full bg-blue-600 hover:bg-blue-700 h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
-              disabled={!selectedFromCompany || !selectedToCompany || !paymentData.amount}
+              disabled={!userCompany || !selectedToCompany || !paymentData.amount}
             >
               <Send className="w-5 h-5 mr-2" />
               Review Payment

@@ -279,12 +279,29 @@ CREATE POLICY "Users can view themselves"
     TO authenticated
     USING (email = auth.jwt() ->> 'email');
 
+-- Grant access to company_basic_info view for all authenticated users
+GRANT SELECT ON company_basic_info TO authenticated;
+
 -- ============================================================================
 -- HELPFUL VIEWS
 -- Pre-computed views for common queries
 -- ============================================================================
 
--- Company Dashboard View
+-- Basic Company Info View - Available to all authenticated users
+CREATE VIEW company_basic_info AS
+SELECT 
+    c.id,
+    c.company_name,
+    c.business_email,
+    c.industry,
+    c.contact_person,
+    c.phone_number,
+    c.business_address,
+    c.registration_status,
+    c.kyc_status
+FROM companies c;
+
+-- Company Dashboard View - Restricted to company members and admins
 CREATE VIEW company_dashboard AS
 SELECT 
     c.id,

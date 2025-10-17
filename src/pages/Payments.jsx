@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Company, Transaction } from "@/api/entities";
+import { Company, Transaction, User } from "@/api/entities";
+import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,7 +28,9 @@ import PaymentConfirmation from "../components/payments/PaymentConfirmation";
 
 export default function Payments() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [companies, setCompanies] = useState([]);
+  const [userCompany, setUserCompany] = useState(null);
   const [step, setStep] = useState('form'); // form, confirm, success
   const [paymentData, setPaymentData] = useState({
     from_company_id: '',
@@ -35,23 +38,29 @@ export default function Payments() {
     amount: '',
     description: ''
   });
-  const [selectedFromCompany, setSelectedFromCompany] = useState(null);
   const [selectedToCompany, setSelectedToCompany] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
   const [transactionId, setTransactionId] = useState('');
 
   useEffect(() => {
-    loadCompanies();
+    loadUserAndCompanies();
   }, []);
 
-  const loadCompanies = async () => {
+  const loadUserAndCompanies = async () => {
     try {
-      const data = await Company.search('', { status: 'active' });
-      setCompanies(data);
+      // Load user's company information
+      const userData = await User.getCurrent();
+      setUserCompany(userData.company);
+      setPaymentData(prev => ({ ...prev, from_company_id: userData.company.id }));
+
+      // Load all companies for recipient selection (excluding user's own company)
+      const allCompanies = await Company.searchBasic('');
+      const otherCompanies = allCompanies.filter(c => c.id !== userData.company.id);
+      setCompanies(otherCompanies);
     } catch (error) {
-      console.error('Error loading companies:', error);
-      setError('Failed to load companies');
+      console.error('Error loading user and companies:', error);
+      setError('Failed to load user or company information');
     }
   };
 
@@ -60,15 +69,18 @@ export default function Payments() {
     setIsProcessing(true);
 
     try {
-      // Validate sufficient funds
-      if (selectedFromCompany.wallet_balance < parseFloat(formData.amount)) {
-        throw new Error('Insufficient funds in sender wallet');
+      // Validate sufficient funds using user's company data
+      if (userCompany.wallet_balance < parseFloat(formData.amount)) {
+        throw new Error('Insufficient funds in your wallet');
       }
+
+      // Get recipient company full data for balance update
+      const toCompanyFull = await Company.get(selectedToCompany.id);
 
       // Create transaction record
       const transactionData = {
         ...formData,
-        from_company_name: selectedFromCompany.company_name,
+        from_company_name: userCompany.company_name,
         to_company_name: selectedToCompany.company_name,
         status: 'completed', // In real app, this would be 'pending' until Circle confirms
         transaction_hash: `0x${Math.random().toString(16).substr(2, 64)}`, // Mock hash
@@ -78,12 +90,12 @@ export default function Payments() {
       const transaction = await Transaction.create(transactionData);
       
       // Update wallet balances (in real app, Circle would handle this)
-      await Company.update(selectedFromCompany.id, {
-        wallet_balance: selectedFromCompany.wallet_balance - parseFloat(formData.amount)
+      await Company.update(userCompany.id, {
+        wallet_balance: userCompany.wallet_balance - parseFloat(formData.amount)
       });
       
       await Company.update(selectedToCompany.id, {
-        wallet_balance: selectedToCompany.wallet_balance + parseFloat(formData.amount)
+        wallet_balance: toCompanyFull.wallet_balance + parseFloat(formData.amount)
       });
 
       setTransactionId(transaction.id);
@@ -99,12 +111,11 @@ export default function Payments() {
   const resetForm = () => {
     setStep('form');
     setPaymentData({
-      from_company_id: '',
+      from_company_id: userCompany?.id || '',
       to_company_id: '',
       amount: '',
       description: ''
     });
-    setSelectedFromCompany(null);
     setSelectedToCompany(null);
     setError('');
     setTransactionId('');
@@ -157,8 +168,7 @@ export default function Payments() {
               companies={companies}
               paymentData={paymentData}
               setPaymentData={setPaymentData}
-              selectedFromCompany={selectedFromCompany}
-              setSelectedFromCompany={setSelectedFromCompany}
+              userCompany={userCompany}
               selectedToCompany={selectedToCompany}
               setSelectedToCompany={setSelectedToCompany}
               onSubmit={() => setStep('confirm')}
@@ -170,7 +180,7 @@ export default function Payments() {
           {step === 'confirm' && (
             <PaymentConfirmation
               paymentData={paymentData}
-              fromCompany={selectedFromCompany}
+              fromCompany={userCompany}
               toCompany={selectedToCompany}
               onConfirm={handlePaymentSubmit}
               onCancel={() => setStep('form')}
@@ -201,7 +211,7 @@ export default function Payments() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-600">From:</span>
-                      <span className="font-semibold">{selectedFromCompany?.company_name}</span>
+                      <span className="font-semibold">{userCompany?.company_name}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-600">To:</span>

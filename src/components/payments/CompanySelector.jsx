@@ -53,9 +53,9 @@ export default function CompanySelector({
               </div>
             </div>
             {showBalance && (
-              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                <Wallet className="w-3 h-3 mr-1" />
-                ${selected.wallet_balance.toFixed(2)}
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                <Building2 className="w-3 h-3 mr-1" />
+                {selected.registration_status}
               </Badge>
             )}
           </div>
@@ -122,8 +122,15 @@ export default function CompanySelector({
                           </div>
                           <div className="flex items-center gap-2">
                             {showBalance && (
-                              <Badge variant="outline" className="text-xs">
-                                ${company.wallet_balance.toFixed(2)}
+                              <Badge 
+                                variant="outline" 
+                                className={`text-xs ${
+                                  company.registration_status === 'active' 
+                                    ? 'bg-green-50 text-green-700 border-green-200' 
+                                    : 'bg-yellow-50 text-yellow-700 border-yellow-200'
+                                }`}
+                              >
+                                {company.registration_status}
                               </Badge>
                             )}
                             {selected?.id === company.id && (

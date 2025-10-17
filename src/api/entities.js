@@ -121,6 +121,39 @@ export const Company = {
     }
     
     return data || [];
+  },
+
+  // Search companies using basic info view (for payment selection)
+  searchBasic: async (searchTerm, filters = {}) => {
+    let query = supabase
+      .from('company_basic_info')
+      .select('*');
+    
+    // Add text search
+    if (searchTerm) {
+      query = query.or(`company_name.ilike.%${searchTerm}%,business_email.ilike.%${searchTerm}%,contact_person.ilike.%${searchTerm}%`);
+    }
+    
+    // Add filters
+    if (filters.industry && filters.industry !== 'all') {
+      query = query.eq('industry', filters.industry);
+    }
+    
+    if (filters.status && filters.status !== 'all') {
+      query = query.eq('registration_status', filters.status);
+    }
+    
+    if (filters.kyc_status && filters.kyc_status !== 'all') {
+      query = query.eq('kyc_status', filters.kyc_status);
+    }
+    
+    const { data, error } = await query.order('company_name', { ascending: true });
+    
+    if (error) {
+      throw new Error(`Error searching companies: ${error.message}`);
+    }
+    
+    return data || [];
   }
 };
 

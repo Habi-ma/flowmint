@@ -50,7 +50,7 @@ function PagesContent() {
                 </ProtectedRoute>
             } />
             
-            <Route path="/Dashboard" element={
+            <Route path="/dashboard" element={
                 <ProtectedRoute>
                     <Layout currentPageName={currentPage}>
                         <Dashboard />
@@ -58,7 +58,7 @@ function PagesContent() {
                 </ProtectedRoute>
             } />
             
-            <Route path="/Companies" element={
+            <Route path="/companies" element={
                 <ProtectedRoute>
                     <Layout currentPageName={currentPage}>
                         <Companies />
@@ -66,7 +66,7 @@ function PagesContent() {
                 </ProtectedRoute>
             } />
             
-            <Route path="/Payments" element={
+            <Route path="/payments" element={
                 <ProtectedRoute>
                     <Layout currentPageName={currentPage}>
                         <Payments />
@@ -74,7 +74,7 @@ function PagesContent() {
                 </ProtectedRoute>
             } />
             
-            <Route path="/History" element={
+            <Route path="/history" element={
                 <ProtectedRoute>
                     <Layout currentPageName={currentPage}>
                         <History />
@@ -82,7 +82,7 @@ function PagesContent() {
                 </ProtectedRoute>
             } />
             
-            <Route path="/Register" element={
+            <Route path="/register" element={
                 <ProtectedRoute>
                     <RoleBasedRoute allowedRoles={['back_office_admin']} redirectTo="Dashboard">
                         <Layout currentPageName={currentPage}>

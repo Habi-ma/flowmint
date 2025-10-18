@@ -9,7 +9,8 @@ import {
   Wallet, 
   Send, 
   Building2, 
-  DollarSign
+  DollarSign,
+  UserPlus
 } from "lucide-react";
 import { motion } from "framer-motion";
 
@@ -76,16 +77,23 @@ export default function Dashboard() {
             <p className="text-slate-600 text-lg">Manage your business payments with Circle's USDC infrastructure</p>
           </div>
           
-          {userProfile?.user_role !== 'back_office_admin' && (
-            <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+          <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+            {userProfile?.user_role === 'back_office_admin' ? (
+              <Link to={createPageUrl("Register")} className="flex-1 lg:flex-none">
+                <Button className="w-full bg-green-600 hover:bg-green-700 shadow-lg hover:shadow-xl transition-all duration-200">
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Register Company
+                </Button>
+              </Link>
+            ) : (
               <Link to={createPageUrl("Payments")} className="flex-1 lg:flex-none">
                 <Button className="w-full bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-200">
                   <Send className="w-4 h-4 mr-2" />
                   Send Payment
                 </Button>
               </Link>
-            </div>
-          )}
+            )}
+          </div>
         </motion.div>
 
         {/* Stats Cards */}

@@ -10,6 +10,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 import CompanyRegistrationForm from "../components/register/CompanyRegistrationForm";
 import RegistrationSuccess from "../components/register/RegistrationSuccess";
@@ -22,6 +23,7 @@ const REGISTRATION_STEPS = [
 
 export default function RegisterCompany() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -106,6 +108,7 @@ export default function RegisterCompany() {
         ...formData,
         wallet_address: walletAddress,
         wallet_balance: 1000, // Demo balance
+        created_by: user?.email || 'system', // Set the creator's email
       };
 
       const company = await Company.create(companyData);

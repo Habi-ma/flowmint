@@ -454,6 +454,35 @@ export const User = {
     return data[0];
   },
 
+  // Get user by email
+  getByEmail: async (email) => {
+    const { data: { user: authUser } } = await supabase.auth.getUser();
+    
+    if (!authUser) {
+      throw new Error('User not authenticated');
+    }
+
+    const { data, error } = await supabase
+      .from('users')
+      .select(`
+        *,
+        company:companies(id, company_name, wallet_balance)
+      `)
+      .eq('email', email)
+      .eq('is_active', true)
+      .single();
+    
+    if (error) {
+      throw new Error(`Error fetching user: ${error.message}`);
+    }
+    
+    if (!data) {
+      throw new Error('User not found or access denied');
+    }
+    
+    return data;
+  },
+
   // Create a new user
   create: async (userData) => {
     const { data, error } = await supabase

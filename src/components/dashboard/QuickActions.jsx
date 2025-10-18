@@ -7,8 +7,7 @@ import { createPageUrl } from "@/utils";
 import { 
   Send, 
   Building2, 
-  History, 
-  UserPlus 
+  History
 } from "lucide-react";
 
 const actions = [
@@ -32,13 +31,6 @@ const actions = [
     icon: History,
     url: "History",
     color: "bg-purple-600 hover:bg-purple-700"
-  },
-  {
-    title: "Register Company",
-    description: "Onboard new business",
-    icon: UserPlus,
-    url: "Register",
-    color: "bg-orange-600 hover:bg-orange-700"
   }
 ];
 

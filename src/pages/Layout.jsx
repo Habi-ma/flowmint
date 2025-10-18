@@ -1,5 +1,4 @@
 
-import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useAuth } from "@/contexts/AuthContext";
@@ -9,7 +8,6 @@ import {
   Building2, 
   Send, 
   History, 
-  UserPlus,
   Wallet,
   TrendingUp,
   Shield,
@@ -55,12 +53,6 @@ const navigationItems = [
     url: createPageUrl("History"),
     icon: History,
     description: "Payment Records"
-  },
-  {
-    title: "Register Company",
-    url: createPageUrl("Register"),
-    icon: UserPlus,
-    description: "Onboard Business"
   }
 ];
 

@@ -160,7 +160,7 @@ export default function PaymentConfirmation({
             <Button
               onClick={onConfirm}
               disabled={isProcessing}
-              className="flex-1 h-12 bg-blue-600 hover:bg-blue-700 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+              className="flex-1 h-12 bg-blue-600 hover:bg-bluet -700 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
             >
               {isProcessing ? (
                 <>

@@ -13,7 +13,7 @@ const ProtectedRoute = ({ children }) => {
         <Card className="w-96">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Loader2 className="w-8 h-8 animate-spin text-blue-600 mb-4" />
-            <p className="text-gray-600">Loading...</p>
+            <p className="text-gray-600">Loading route...</p>
           </CardContent>
         </Card>
       </div>

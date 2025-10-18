@@ -1,21 +1,11 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Company } from "@/api/entities";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Link } from "react-router-dom";
-import { createPageUrl } from "@/utils";
 import { 
   Building2, 
   Search, 
-  Mail, 
-  Phone, 
-  MapPin, 
-  Wallet,
-  Plus,
-  Filter,
   Users
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -97,12 +87,6 @@ export default function Companies() {
             <p className="text-slate-600 text-lg">Directory of businesses using FLowmint platform</p>
           </div>
           
-          <Link to={createPageUrl("Register")}>
-            <Button className="bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-200">
-              <Plus className="w-4 h-4 mr-2" />
-              Register New Company
-            </Button>
-          </Link>
         </motion.div>
 
         {/* Search and Filters */}
@@ -176,12 +160,6 @@ export default function Companies() {
                 : "Be the first to register a company on the platform"
               }
             </p>
-            <Link to={createPageUrl("Register")}>
-              <Button className="bg-blue-600 hover:bg-blue-700">
-                <Plus className="w-4 h-4 mr-2" />
-                Register First Company
-              </Button>
-            </Link>
           </motion.div>
         ) : (
           <motion.div

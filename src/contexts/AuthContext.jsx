@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
-import { GoogleOAuthProvider, GoogleLogin } from '@react-oauth/google';
+import { createContext, useContext, useState, useEffect } from 'react';
+import { GoogleLogin } from '@react-oauth/google';
 import { useNavigate } from 'react-router-dom';
-import { supabase, signInWithGoogle, getCurrentUser, signOut as supabaseSignOut } from '@/api/supabaseClient';
+import { supabase, signInWithGoogle, signOut as supabaseSignOut } from '@/api/supabaseClient';
+import { User } from '@/api/entities';
 
 const AuthContext = createContext();
 
@@ -15,8 +16,28 @@ export const useAuth = () => {
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [accessToken, setAccessToken] = useState(null);
+
+  // Function to fetch user profile from the users table
+  const fetchUserProfile = async (userEmail) => {
+    try {
+      if (!userEmail) return null;
+      
+      const profile = await User.getByEmail(userEmail);
+      setUserProfile(profile);
+      
+      // Cache the profile in localStorage
+      localStorage.setItem('userProfile', JSON.stringify(profile));
+      
+      return profile;
+    } catch (error) {
+      console.error('Error fetching user profile:', error);
+      setUserProfile(null);
+      return null;
+    }
+  };
 
   // Check for existing Supabase session on mount
   useEffect(() => {
@@ -28,15 +49,37 @@ export const AuthProvider = ({ children }) => {
         if (session && !error) {
           setUser(session.user);
           setAccessToken(session.access_token);
+          
+          // Check if we have cached user profile in localStorage
+          const cachedProfile = localStorage.getItem('userProfile');
+          if (cachedProfile) {
+            try {
+              const profile = JSON.parse(cachedProfile);
+              setUserProfile(profile);
+            } catch (parseError) {
+              console.error('Error parsing cached profile:', parseError);
+              localStorage.removeItem('userProfile');
+            }
+          } else {
+            // Only fetch if we don't have cached data
+            try {
+              await fetchUserProfile(session.user.email);
+            } catch (profileError) {
+              console.error('Error fetching user profile during init:', profileError);
+            }
+          }
         } else {
           // Clear any stale local storage
           localStorage.removeItem('user');
           localStorage.removeItem('accessToken');
+          localStorage.removeItem('userProfile');
+          setUserProfile(null);
         }
       } catch (error) {
         console.error('Error initializing auth:', error);
         localStorage.removeItem('user');
         localStorage.removeItem('accessToken');
+        localStorage.removeItem('userProfile');
       } finally {
         setIsLoading(false);
       }
@@ -50,11 +93,30 @@ export const AuthProvider = ({ children }) => {
         if (session) {
           setUser(session.user);
           setAccessToken(session.access_token);
+          
+          // Check if we have cached user profile in localStorage
+          const cachedProfile = localStorage.getItem('userProfile');
+          if (cachedProfile) {
+            try {
+              const profile = JSON.parse(cachedProfile);
+              setUserProfile(profile);
+            } catch (parseError) {
+              console.error('Error parsing cached profile:', parseError);
+              localStorage.removeItem('userProfile');
+              // Fetch fresh profile if cache is corrupted
+              await fetchUserProfile(session.user.email);
+            }
+          } else {
+            // Fetch user profile from users table
+            await fetchUserProfile(session.user.email);
+          }
         } else {
           setUser(null);
           setAccessToken(null);
+          setUserProfile(null);
           localStorage.removeItem('user');
           localStorage.removeItem('accessToken');
+          localStorage.removeItem('userProfile');
         }
         setIsLoading(false);
       }
@@ -92,6 +154,7 @@ export const AuthProvider = ({ children }) => {
 
   const value = {
     user,
+    userProfile,
     accessToken,
     isLoading,
     login,

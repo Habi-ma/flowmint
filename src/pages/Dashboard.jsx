@@ -1,22 +1,15 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Company, Transaction } from "@/api/entities";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { 
   Wallet, 
-  TrendingUp, 
   Send, 
   Building2, 
-  ArrowUpRight, 
-  ArrowDownLeft,
-  Plus,
-  Eye,
   DollarSign
 } from "lucide-react";
-import { format } from "date-fns";
 import { motion } from "framer-motion";
 
 import StatsOverview from "../components/dashboard/StatsOverview";
@@ -86,12 +79,6 @@ export default function Dashboard() {
               <Button className="w-full bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-200">
                 <Send className="w-4 h-4 mr-2" />
                 Send Payment
-              </Button>
-            </Link>
-            <Link to={createPageUrl("Register")} className="flex-1 lg:flex-none">
-              <Button variant="outline" className="w-full border-slate-300 hover:bg-slate-50">
-                <Plus className="w-4 h-4 mr-2" />
-                Register Company
               </Button>
             </Link>
           </div>

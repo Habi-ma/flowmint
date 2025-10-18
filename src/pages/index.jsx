@@ -6,6 +6,7 @@ import Payments from "./Payments";
 import History from "./History";
 import Register from "./Register";
 import ProtectedRoute from "@/components/ProtectedRoute";
+import RoleBasedRoute from "@/components/RoleBasedRoute";
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 
 const PAGES = {
@@ -83,9 +84,11 @@ function PagesContent() {
             
             <Route path="/Register" element={
                 <ProtectedRoute>
-                    <Layout currentPageName={currentPage}>
-                        <Register />
-                    </Layout>
+                    <RoleBasedRoute allowedRoles={['back_office_admin']} redirectTo="Dashboard">
+                        <Layout currentPageName={currentPage}>
+                            <Register />
+                        </Layout>
+                    </RoleBasedRoute>
                 </ProtectedRoute>
             } />
         </Routes>

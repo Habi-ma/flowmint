@@ -1,25 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Company } from "@/api/entities";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Progress } from "@/components/ui/progress";
 import { 
   ArrowLeft, 
-  Building2, 
   CheckCircle, 
   AlertCircle,
-  Wallet,
-  Shield,
-  Mail,
-  Phone,
-  MapPin,
-  User,
-  Hash
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";

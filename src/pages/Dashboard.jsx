@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Company, Transaction } from "@/api/entities";
+import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -17,6 +18,7 @@ import RecentTransactions from "../components/dashboard/RecentTransactions";
 import QuickActions from "../components/dashboard/QuickActions";
 
 export default function Dashboard() {
+  const { userProfile } = useAuth();
   const [companies, setCompanies] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -74,14 +76,16 @@ export default function Dashboard() {
             <p className="text-slate-600 text-lg">Manage your business payments with Circle's USDC infrastructure</p>
           </div>
           
-          <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
-            <Link to={createPageUrl("Payments")} className="flex-1 lg:flex-none">
-              <Button className="w-full bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-200">
-                <Send className="w-4 h-4 mr-2" />
-                Send Payment
-              </Button>
-            </Link>
-          </div>
+          {userProfile?.user_role !== 'back_office_admin' && (
+            <div className="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+              <Link to={createPageUrl("Payments")} className="flex-1 lg:flex-none">
+                <Button className="w-full bg-blue-600 hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all duration-200">
+                  <Send className="w-4 h-4 mr-2" />
+                  Send Payment
+                </Button>
+              </Link>
+            </div>
+          )}
         </motion.div>
 
         {/* Stats Cards */}

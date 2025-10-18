@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { useAuth } from "@/contexts/AuthContext";
 import { 
   ArrowUpRight, 
   ArrowDownLeft, 
@@ -23,6 +24,8 @@ const statusConfig = {
 };
 
 export default function RecentTransactions({ transactions, isLoading }) {
+  const { userProfile } = useAuth();
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -59,12 +62,19 @@ export default function RecentTransactions({ transactions, isLoading }) {
             <div className="text-center py-12">
               <ArrowUpRight className="w-12 h-12 text-slate-300 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-slate-900 mb-2">No transactions yet</h3>
-              <p className="text-slate-500 mb-6">Start by sending your first payment</p>
-              <Link to={createPageUrl("Payments")}>
-                <Button className="bg-blue-600 hover:bg-blue-700">
-                  Send Payment
-                </Button>
-              </Link>
+              <p className="text-slate-500 mb-6">
+                {userProfile?.user_role === 'back_office_admin' 
+                  ? "View transaction history and manage companies" 
+                  : "Start by sending your first payment"
+                }
+              </p>
+              {userProfile?.user_role !== 'back_office_admin' && (
+                <Link to={createPageUrl("Payments")}>
+                  <Button className="bg-blue-600 hover:bg-blue-700">
+                    Send Payment
+                  </Button>
+                </Link>
+              )}
             </div>
           ) : (
             <div className="space-y-3">

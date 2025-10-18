@@ -12,7 +12,8 @@ import {
   TrendingUp,
   Shield,
   LogOut,
-  User
+  User,
+  UserPlus
 } from "lucide-react";
 import {
   Sidebar,
@@ -53,15 +54,34 @@ const navigationItems = [
     url: createPageUrl("History"),
     icon: History,
     description: "Payment Records"
+  },
+  {
+    title: "Register Company",
+    url: createPageUrl("Register"),
+    icon: UserPlus,
+    description: "Add New Company"
   }
 ];
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
-  const { user, logout } = useAuth();
+  const { user, userProfile, logout } = useAuth();
   
   // Automatically set auth token for API requests
   useAuthToken();
+
+  // Filter navigation items based on user role
+  const filteredNavigationItems = navigationItems.filter(item => {
+    // Hide Send Payment from back-office users
+    if (item.title === "Send Payment") {
+      return userProfile?.user_role !== 'back_office_admin';
+    }
+    // Show Register Company only to back-office users
+    if (item.title === "Register Company") {
+      return userProfile?.user_role === 'back_office_admin';
+    }
+    return true;
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-50">
@@ -100,7 +120,7 @@ export default function Layout({ children, currentPageName }) {
                 </SidebarGroupLabel>
                 <SidebarGroupContent>
                   <SidebarMenu>
-                    {navigationItems.map((item) => (
+                    {filteredNavigationItems.map((item) => (
                       <SidebarMenuItem key={item.title}>
                         <SidebarMenuButton 
                           asChild 

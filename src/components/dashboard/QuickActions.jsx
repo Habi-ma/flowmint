@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "@/utils";
+import { useAuth } from "@/contexts/AuthContext";
 import { 
   Send, 
   Building2, 
@@ -35,6 +36,17 @@ const actions = [
 ];
 
 export default function QuickActions() {
+  const { userProfile } = useAuth();
+  
+  // Filter actions based on user role
+  const filteredActions = actions.filter(action => {
+    // Hide Send Payment from back-office users
+    if (action.title === "Send Payment") {
+      return userProfile?.user_role !== 'back_office_admin';
+    }
+    return true;
+  });
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -46,7 +58,7 @@ export default function QuickActions() {
           <CardTitle className="text-xl font-bold text-slate-900">Quick Actions</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
-          {actions.map((action, index) => (
+          {filteredActions.map((action, index) => (
             <Link key={action.title} to={createPageUrl(action.url)}>
               <Button
                 variant="outline"

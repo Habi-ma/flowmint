@@ -68,9 +68,11 @@ function PagesContent() {
             
             <Route path="/payments" element={
                 <ProtectedRoute>
-                    <Layout currentPageName={currentPage}>
-                        <Payments />
-                    </Layout>
+                    <RoleBasedRoute allowedRoles={['company_admin', 'company_user']} redirectTo="Dashboard">
+                        <Layout currentPageName={currentPage}>
+                            <Payments />
+                        </Layout>
+                    </RoleBasedRoute>
                 </ProtectedRoute>
             } />
             

@@ -373,3 +373,117 @@ SELECT
     'Software license payment',
     'john.smith@techcorp.example',
     0.00;
+
+-- ============================================================================
+-- PAYMENT EXECUTION FUNCTION
+-- Handles atomic payment processing with wallet balance updates
+-- ============================================================================
+
+CREATE OR REPLACE FUNCTION execute_payment(
+    from_company_id UUID,
+    to_company_id UUID,
+    amount DECIMAL(20, 2),
+    description TEXT DEFAULT NULL,
+    created_by TEXT DEFAULT NULL
+)
+RETURNS JSON
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+    from_company RECORD;
+    to_company RECORD;
+    transaction_id UUID;
+    transaction_hash TEXT;
+    result JSON;
+BEGIN
+    -- Validate amount
+    IF amount <= 0 THEN
+        RAISE EXCEPTION 'Amount must be greater than zero';
+    END IF;
+    
+    -- Validate different companies
+    IF from_company_id = to_company_id THEN
+        RAISE EXCEPTION 'Cannot send payment to the same company';
+    END IF;
+    
+    -- Get sender company with row-level security bypass
+    SELECT * INTO from_company 
+    FROM companies 
+    WHERE id = from_company_id;
+    
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Sender company not found';
+    END IF;
+    
+    -- Check sufficient funds
+    IF from_company.wallet_balance < amount THEN
+        RAISE EXCEPTION 'Insufficient funds';
+    END IF;
+    
+    -- Get recipient company with row-level security bypass
+    SELECT * INTO to_company 
+    FROM companies 
+    WHERE id = to_company_id;
+    
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'Recipient company not found';
+    END IF;
+    
+    -- Generate transaction hash
+    transaction_hash := '0x' || encode(gen_random_bytes(32), 'hex');
+    
+    -- Create transaction record
+    INSERT INTO transactions (
+        from_company_id,
+        to_company_id,
+        from_company_name,
+        to_company_name,
+        amount,
+        description,
+        status,
+        transaction_hash,
+        created_by,
+        fee
+    ) VALUES (
+        from_company_id,
+        to_company_id,
+        from_company.company_name,
+        to_company.company_name,
+        amount,
+        description,
+        'completed',
+        transaction_hash,
+        COALESCE(created_by, 'system'),
+        0.00
+    ) RETURNING id INTO transaction_id;
+    
+    -- Update wallet balances atomically
+    UPDATE companies 
+    SET wallet_balance = wallet_balance - amount,
+        updated_date = NOW()
+    WHERE id = from_company_id;
+    
+    UPDATE companies 
+    SET wallet_balance = wallet_balance + amount,
+        updated_date = NOW()
+    WHERE id = to_company_id;
+    
+    -- Return transaction details
+    SELECT json_build_object(
+        'id', transaction_id,
+        'transaction_hash', transaction_hash,
+        'amount', amount,
+        'status', 'completed',
+        'from_company_name', from_company.company_name,
+        'to_company_name', to_company.company_name,
+        'description', description
+    ) INTO result;
+    
+    RETURN result;
+END;
+$$;
+
+-- Grant execute permission to authenticated users
+GRANT EXECUTE ON FUNCTION execute_payment TO authenticated;

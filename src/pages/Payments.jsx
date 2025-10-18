@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Company, Transaction, User } from "@/api/entities";
+import { Company, Transaction, User, Payment } from "@/api/entities";
 import { useAuth } from "@/contexts/AuthContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -42,6 +42,7 @@ export default function Payments() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState('');
   const [transactionId, setTransactionId] = useState('');
+  const [transactionHash, setTransactionHash] = useState('');
 
   useEffect(() => {
     loadUserAndCompanies();
@@ -69,36 +70,33 @@ export default function Payments() {
     setIsProcessing(true);
 
     try {
+      // Validate required data
+      if (!selectedToCompany?.id) {
+        throw new Error('Please select a recipient company');
+      }
+
+      if (!formData.from_company_id) {
+        throw new Error('Sender company not found');
+      }
+
       // Validate sufficient funds using user's company data
       if (userCompany.wallet_balance < parseFloat(formData.amount)) {
         throw new Error('Insufficient funds in your wallet');
       }
 
-      // Get recipient company full data for balance update
-      const toCompanyFull = await Company.get(selectedToCompany.id);
-
-      // Create transaction record
-      const transactionData = {
-        ...formData,
-        from_company_name: userCompany.company_name,
-        to_company_name: selectedToCompany.company_name,
-        status: 'completed', // In real app, this would be 'pending' until Circle confirms
-        transaction_hash: `0x${Math.random().toString(16).substr(2, 64)}`, // Mock hash
-        fee: 0 // Circle typically has no fees for USDC transfers
+      // Execute payment using the atomic database function
+      const paymentData = {
+        from_company_id: formData.from_company_id,
+        to_company_id: selectedToCompany.id,
+        amount: formData.amount,
+        description: formData.description,
+        created_by: user?.email || 'system'
       };
 
-      const transaction = await Transaction.create(transactionData);
-      
-      // Update wallet balances (in real app, Circle would handle this)
-      await Company.update(userCompany.id, {
-        wallet_balance: userCompany.wallet_balance - parseFloat(formData.amount)
-      });
-      
-      await Company.update(selectedToCompany.id, {
-        wallet_balance: toCompanyFull.wallet_balance + parseFloat(formData.amount)
-      });
+      const result = await Payment.execute(paymentData);
 
-      setTransactionId(transaction.id);
+      setTransactionId(result.id);
+      setTransactionHash(result.transaction_hash);
       setStep('success');
     } catch (error) {
       console.error('Payment error:', error);
@@ -119,6 +117,7 @@ export default function Payments() {
     setSelectedToCompany(null);
     setError('');
     setTransactionId('');
+    setTransactionHash('');
   };
 
   return (
@@ -220,6 +219,10 @@ export default function Payments() {
                     <div className="flex justify-between">
                       <span className="text-slate-600">Transaction ID:</span>
                       <span className="font-mono text-xs">{transactionId}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-600">Hash:</span>
+                      <span className="font-mono text-xs">{transactionHash}</span>
                     </div>
                   </div>
 

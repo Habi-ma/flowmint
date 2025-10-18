@@ -65,7 +65,7 @@ export default function Payments() {
     }
   };
 
-  const handlePaymentSubmit = async (formData) => {
+  const handlePaymentSubmit = async () => {
     setError('');
     setIsProcessing(true);
 
@@ -75,25 +75,25 @@ export default function Payments() {
         throw new Error('Please select a recipient company');
       }
 
-      if (!formData.from_company_id) {
+      if (!paymentData.from_company_id) {
         throw new Error('Sender company not found');
       }
 
       // Validate sufficient funds using user's company data
-      if (userCompany.wallet_balance < parseFloat(formData.amount)) {
+      if (userCompany.wallet_balance < parseFloat(paymentData.amount)) {
         throw new Error('Insufficient funds in your wallet');
       }
 
       // Execute payment using the atomic database function
-      const paymentData = {
-        from_company_id: formData.from_company_id,
+      const paymentRequestData = {
+        from_company_id: paymentData.from_company_id,
         to_company_id: selectedToCompany.id,
-        amount: formData.amount,
-        description: formData.description,
+        amount: paymentData.amount,
+        description: paymentData.description,
         created_by: user?.email || 'system'
       };
 
-      const result = await Payment.execute(paymentData);
+      const result = await Payment.execute(paymentRequestData);
 
       setTransactionId(result.id);
       setTransactionHash(result.transaction_hash);

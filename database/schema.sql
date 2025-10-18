@@ -1,4 +1,12 @@
 -- ============================================================================
+-- ENABLE REQUIRED EXTENSIONS
+-- ============================================================================
+
+-- Enable uuid-ossp extension for UUID generation
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+CREATE EXTENSION IF NOT EXISTS "pgcrypto";
+
+-- ============================================================================
 -- COMPANY TABLE
 -- Stores all registered companies with their wallet information
 -- ============================================================================
@@ -369,7 +377,7 @@ SELECT
     'HealthFirst Medical',
     1250.00,
     'completed',
-    '0x' || encode(gen_random_bytes(32), 'hex'),
+    md5(random()::text || clock_timestamp()::text),
     'Software license payment',
     'john.smith@techcorp.example',
     0.00;
@@ -389,7 +397,7 @@ CREATE OR REPLACE FUNCTION execute_payment(
 RETURNS JSON
 LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
+SET search_path = public, extensions
 AS $$
 DECLARE
     from_company RECORD;
@@ -431,8 +439,8 @@ BEGIN
         RAISE EXCEPTION 'Recipient company not found';
     END IF;
     
-    -- Generate transaction hash
-    transaction_hash := '0x' || encode(gen_random_bytes(32), 'hex');
+    -- Generate transaction hash using random values
+    transaction_hash := uuid_generate_v4()::text;
     
     -- Create transaction record
     INSERT INTO transactions (

@@ -39,6 +39,12 @@ const navigationItems = [
     description: "Smart Recommendations"
   },
   {
+    title: "Transaction History",
+    url: createPageUrl("History"),
+    icon: History,
+    description: "Payment Records"
+  },
+  {
     title: "Dashboard",
     url: createPageUrl("Dashboard"),
     icon: LayoutDashboard,
@@ -55,12 +61,6 @@ const navigationItems = [
     url: createPageUrl("Payments"),
     icon: Send,
     description: "Transfer USDC"
-  },
-  {
-    title: "Transaction History",
-    url: createPageUrl("History"),
-    icon: History,
-    description: "Payment Records"
   },
   {
     title: "Register Company",

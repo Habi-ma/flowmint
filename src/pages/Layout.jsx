@@ -106,17 +106,11 @@ export default function Layout({ children, currentPageName }) {
         <div className="flex w-full">
           <Sidebar className="border-r border-slate-200/50 bg-white/80 backdrop-blur-sm">
             <SidebarHeader className="border-b border-slate-200/50 p-6">
-              <div className="flex items-center gap-3">
-                <div className="relative">
-                  <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
-                    <Wallet className="w-6 h-6 text-white" />
-                  </div>
-                  <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+              <div className="flex flex-col gap-2">
+                <div className="bg-white rounded-lg p-1.5 shadow-sm inline-block self-start">
+                  <img src="/flowmint-logo.png" alt="Flowmint" className="h-8 w-auto object-contain" />
                 </div>
-                <div>
-                  <h2 className="font-bold text-slate-900 text-lg">Flowmint</h2>
-                  <p className="text-xs text-slate-500 font-medium">Enterprise USDC Platform</p>
-                </div>
+                <p className="text-xs text-slate-500 font-medium px-1">Enterprise USDC Platform</p>
               </div>
             </SidebarHeader>
 
@@ -132,8 +126,8 @@ export default function Layout({ children, currentPageName }) {
                         <SidebarMenuButton
                           asChild
                           className={`group relative overflow-hidden transition-all duration-200 rounded-xl mb-1 ${location.pathname === item.url
-                              ? 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 shadow-sm'
-                              : 'hover:bg-slate-50 text-slate-600 hover:text-slate-900'
+                            ? 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 shadow-sm'
+                            : 'hover:bg-slate-50 text-slate-600 hover:text-slate-900'
                             }`}
                         >
                           <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
@@ -217,8 +211,9 @@ export default function Layout({ children, currentPageName }) {
               <div className="flex items-center gap-4">
                 <SidebarTrigger className="hover:bg-slate-100 p-2 rounded-lg transition-colors duration-200" />
                 <div className="flex items-center gap-2">
-                  <Wallet className="w-6 h-6 text-blue-600" />
-                  <h1 className="text-xl font-bold text-slate-900">Flowmint</h1>
+                  <div className="bg-white rounded-lg p-1 shadow-sm">
+                    <img src="/flowmint-logo.png" alt="Flowmint" className="h-6 w-auto object-contain" />
+                  </div>
                 </div>
               </div>
             </header>

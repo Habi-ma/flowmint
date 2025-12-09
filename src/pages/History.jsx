@@ -31,6 +31,7 @@ export default function TransactionHistory() {
   const [filters, setFilters] = useState({
     status: "all",
     dateRange: undefined,
+    dateMode: 'custom',
     company: "all",
     minAmount: "",
     maxAmount: ""

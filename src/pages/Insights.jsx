@@ -178,88 +178,8 @@ export default function Insights() {
                 <h1 className="text-3xl font-bold tracking-tight text-slate-900">Insights</h1>
             </div>
 
-            {/* Insights Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {insights.map((card) => (
-                    <Card key={card.id} className="relative overflow-hidden border-slate-200 shadow-sm hover:shadow-md transition-shadow">
-                        {card.is_new && (
-                            <Badge className="absolute top-4 right-4 bg-lime-300 text-lime-900 hover:bg-lime-400 border-none">
-                                New
-                            </Badge>
-                        )}
-                        <CardHeader className="pb-2 pt-6">
-                            <CardTitle className="text-lg font-semibold text-slate-800 leading-tight">
-                                {card.title}
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="text-sm text-slate-500 mb-6 min-h-[60px]">
-                                {card.description}
-                            </p>
-
-                            <div className="space-y-1 mb-6">
-                                {(card.metric_value || card.metric_label) && (
-                                    <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">
-                                        {card.metric_label}
-                                    </p>
-                                )}
-                                <div className="flex items-baseline gap-1">
-                                    <span className={`text-xl font-bold ${card.type === 'warning' ? 'text-red-500' : 'text-green-500'}`}>
-                                        {card.metric_value}
-                                    </span>
-                                    {/* Frequency is hardcoded for now or could be added to DB */}
-                                    {card.metric_label === 'Potential Savings' && (
-                                        <span className="text-sm text-slate-400 font-medium">/ Year</span>
-                                    )}
-                                </div>
-                            </div>
-
-                            <div className="flex items-center justify-between mt-4">
-                                {card.logo_url ? (
-                                    <img src={card.logo_url} alt="" className="w-8 h-8 rounded-full object-contain bg-slate-50 p-1" />
-                                ) : (
-                                    <div className={`w-8 h-8 rounded-full ${card.logo_color || 'bg-slate-200'} flex items-center justify-center text-white text-xs font-bold`}>
-                                        {card.title.substring(0, 2)}
-                                    </div>
-                                )}
-
-                                <div className="flex gap-2">
-                                    <Button
-                                        variant="outline"
-                                        size="icon"
-                                        onClick={() => handleDismiss(card.id)}
-                                        className="w-8 h-8 rounded-full border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50"
-                                    >
-                                        <X className="w-4 h-4" />
-                                    </Button>
-                                    <Button variant="outline" size="icon" className="w-8 h-8 rounded-full border-slate-200 text-slate-400 hover:text-green-500 hover:border-green-200 hover:bg-green-50">
-                                        <Check className="w-4 h-4" />
-                                    </Button>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                ))}
-
-                {/* Summary Card */}
-                <Card className="border-slate-200 shadow-sm bg-slate-50/50 flex flex-col justify-center">
-                    <CardContent className="flex flex-col items-center justify-center text-center p-6 space-y-4">
-                        <div className="space-y-2">
-                            <p className="text-sm font-medium text-slate-500">Total Savings Identified</p>
-                            <h3 className="text-3xl font-bold text-slate-900">
-                                ${totalSavings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                            </h3>
-                        </div>
-                        <Button variant="outline" className="w-full justify-between group bg-white border-slate-200 hover:border-blue-300 hover:text-blue-600">
-                            Previous Insights
-                            <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
-                        </Button>
-                    </CardContent>
-                </Card>
-            </div>
-
             {/* Analytics Section */}
-            <div className="pt-8 border-t border-slate-200">
+            <div className="border-slate-200">
 
                 {/* Controls */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -401,6 +321,86 @@ export default function Insights() {
                         <div className="absolute bottom-16 right-16 bg-white px-3 py-1 rounded shadow-sm border border-slate-200 text-xs text-slate-500 font-medium">
                             Last Month: $800k
                         </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Insights Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-8 border-t border-slate-200">
+                {insights.map((card) => (
+                    <Card key={card.id} className="relative overflow-hidden border-slate-200 shadow-sm hover:shadow-md transition-shadow">
+                        {card.is_new && (
+                            <Badge className="absolute top-4 right-4 bg-lime-300 text-lime-900 hover:bg-lime-400 border-none">
+                                New
+                            </Badge>
+                        )}
+                        <CardHeader className="pb-2 pt-6">
+                            <CardTitle className="text-lg font-semibold text-slate-800 leading-tight">
+                                {card.title}
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-slate-500 mb-6 min-h-[60px]">
+                                {card.description}
+                            </p>
+
+                            <div className="space-y-1 mb-6">
+                                {(card.metric_value || card.metric_label) && (
+                                    <p className="text-xs font-medium text-slate-400 uppercase tracking-wide">
+                                        {card.metric_label}
+                                    </p>
+                                )}
+                                <div className="flex items-baseline gap-1">
+                                    <span className={`text-xl font-bold ${card.type === 'warning' ? 'text-red-500' : 'text-green-500'}`}>
+                                        {card.metric_value}
+                                    </span>
+                                    {/* Frequency is hardcoded for now or could be added to DB */}
+                                    {card.metric_label === 'Potential Savings' && (
+                                        <span className="text-sm text-slate-400 font-medium">/ Year</span>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between mt-4">
+                                {card.logo_url ? (
+                                    <img src={card.logo_url} alt="" className="w-8 h-8 rounded-full object-contain bg-slate-50 p-1" />
+                                ) : (
+                                    <div className={`w-8 h-8 rounded-full ${card.logo_color || 'bg-slate-200'} flex items-center justify-center text-white text-xs font-bold`}>
+                                        {card.title.substring(0, 2)}
+                                    </div>
+                                )}
+
+                                <div className="flex gap-2">
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        onClick={() => handleDismiss(card.id)}
+                                        className="w-8 h-8 rounded-full border-slate-200 text-slate-400 hover:text-red-500 hover:border-red-200 hover:bg-red-50"
+                                    >
+                                        <X className="w-4 h-4" />
+                                    </Button>
+                                    <Button variant="outline" size="icon" className="w-8 h-8 rounded-full border-slate-200 text-slate-400 hover:text-green-500 hover:border-green-200 hover:bg-green-50">
+                                        <Check className="w-4 h-4" />
+                                    </Button>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                ))}
+
+                {/* Summary Card */}
+                <Card className="border-slate-200 shadow-sm bg-slate-50/50 flex flex-col justify-center">
+                    <CardContent className="flex flex-col items-center justify-center text-center p-6 space-y-4">
+                        <div className="space-y-2">
+                            <p className="text-sm font-medium text-slate-500">Total Savings Identified</p>
+                            <h3 className="text-3xl font-bold text-slate-900">
+                                ${totalSavings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                            </h3>
+                        </div>
+                        <Button variant="outline" className="w-full justify-between group bg-white border-slate-200 hover:border-blue-300 hover:text-blue-600">
+                            Previous Insights
+                            <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                        </Button>
                     </CardContent>
                 </Card>
             </div>

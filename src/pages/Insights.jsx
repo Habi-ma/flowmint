@@ -36,10 +36,22 @@ export default function Insights() {
     const [monthSpend, setMonthSpend] = useState(0);
     const [monthCashback, setMonthCashback] = useState(0);
     const [chartData, setChartData] = useState([]);
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         fetchData();
     }, []);
+
+    useEffect(() => {
+        if (transactions.length > 0) {
+            const filtered = transactions.filter(t =>
+                t.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                t.to_company_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                t.from_company_name?.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+            processTransactionData(filtered);
+        }
+    }, [searchQuery, transactions]);
 
     const fetchData = async () => {
         try {
@@ -78,7 +90,8 @@ export default function Insights() {
             if (transactionsError) throw transactionsError;
 
             setTransactions(transactionsData || []);
-            processTransactionData(transactionsData || []);
+
+            // processTransactionData will be triggered by the useEffect above through transactions dependency
 
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -224,7 +237,12 @@ export default function Insights() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
                     <div className="relative w-full md:w-96">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <Input placeholder="Search Transactions" className="pl-10 border-slate-200 bg-white" />
+                        <Input
+                            placeholder="Search Transactions"
+                            className="pl-10 border-slate-200 bg-white"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
                     </div>
 
                     <div className="flex items-center gap-3">

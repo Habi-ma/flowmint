@@ -21,16 +21,18 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { supabase } from "@/api/supabaseClient";
 import { format, startOfMonth, parseISO, startOfWeek } from 'date-fns';
+import TransactionTable from "../components/history/TransactionTable";
 
 export default function Insights() {
     const [chartType, setChartType] = useState('line');
     const [insights, setInsights] = useState([]);
     const [transactions, setTransactions] = useState([]);
+    const [filteredTransactions, setFilteredTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [totalSavings, setTotalSavings] = useState(0);
     const [monthSpend, setMonthSpend] = useState(0);
@@ -39,6 +41,8 @@ export default function Insights() {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedMonth, setSelectedMonth] = useState('november');
     const [grouping, setGrouping] = useState('daily');
+
+    const [users, setUsers] = useState({});
 
     useEffect(() => {
         fetchData();
@@ -66,6 +70,7 @@ export default function Insights() {
                 });
             }
 
+            setFilteredTransactions(filtered);
             processTransactionData(filtered);
         }
     }, [searchQuery, selectedMonth, grouping, transactions]);
@@ -95,20 +100,29 @@ export default function Insights() {
             }, 0);
             setTotalSavings(savings);
 
-            // Fetch Transactions for this month
-            // Note: In a real app, you might want to fetch a specific range or aggregated data
-            // For this demo, we fetch recent transactions
+            // Fetch Transactions with company details
             const { data: transactionsData, error: transactionsError } = await supabase
                 .from('transactions')
-                .select('*')
+                .select('*, to_company:to_company_id(industry, business_address)')
                 .eq('status', 'completed')
-                .order('created_date', { ascending: true }); // Ordered for chart
+                .order('created_date', { ascending: true });
 
             if (transactionsError) throw transactionsError;
-
             setTransactions(transactionsData || []);
+            setFilteredTransactions(transactionsData || []); // Initialize filtered with all data
 
-            // processTransactionData will be triggered by the useEffect above through transactions dependency
+            // Fetch Users for "People" tab
+            const { data: usersData, error: usersError } = await supabase
+                .from('users')
+                .select('email, full_name');
+
+            if (!usersError && usersData) {
+                const userMap = usersData.reduce((acc, user) => {
+                    acc[user.email] = user.full_name;
+                    return acc;
+                }, {});
+                setUsers(userMap);
+            }
 
         } catch (error) {
             console.error('Error fetching data:', error);
@@ -124,8 +138,6 @@ export default function Insights() {
         // Mock cashback logic: 1.5% of spend
         setMonthCashback(spend * 0.015);
 
-        // Prepare Chart Data (Group by Day)
-        // Simplified grouping for demo
         // Prepare Chart Data
         const grouped = data.reduce((acc, t) => {
             const date = parseISO(t.created_date);
@@ -149,9 +161,7 @@ export default function Insights() {
             value: grouped[key]
         }));
 
-        // If no data, use some fallback or empty state for chart
         if (chart.length === 0) {
-            // Fallback dummy data for visualization if database is empty
             setChartData([
                 { name: 'Nov 1', value: 0 },
                 { name: 'Nov 30', value: 0 },
@@ -159,6 +169,48 @@ export default function Insights() {
         } else {
             setChartData(chart);
         }
+    };
+
+    const getAggregatedData = (type) => {
+        const data = {};
+        const sourceData = filteredTransactions.length > 0 || (searchQuery || selectedMonth !== 'all') ? filteredTransactions : transactions;
+        const total = sourceData.reduce((acc, t) => acc + Number(t.amount), 0);
+
+        sourceData.forEach(t => {
+            let key = 'Unknown';
+            if (type === 'categories') {
+                key = t.to_company?.industry || 'Uncategorized';
+                // Capitalize
+                key = key.charAt(0).toUpperCase() + key.slice(1);
+            } else if (type === 'merchants') {
+                key = t.to_company_name;
+            } else if (type === 'people') {
+                key = users[t.created_by] || t.created_by;
+            } else if (type === 'locations') {
+                // Extract city from address if possible, else use full address
+                const address = t.to_company?.business_address || 'Unknown';
+                // Simple assumption: "Street, City, State Zip" -> split by comma
+                const parts = address.split(',');
+                if (parts.length >= 2) {
+                    key = parts[1].trim(); // City
+                } else {
+                    key = address;
+                }
+            }
+
+            if (!data[key]) data[key] = { amount: 0, count: 0 };
+            data[key].amount += Number(t.amount);
+            data[key].count += 1;
+        });
+
+        // Convert to array and sort
+        return Object.keys(data).map(key => ({
+            name: key,
+            amount: data[key].amount,
+            percent: total > 0 ? (data[key].amount / total) * 100 : 0,
+            // Mock % change for demo
+            change: (Math.random() * 20 - 5).toFixed(1)
+        })).sort((a, b) => b.amount - a.amount);
     };
 
     const handleDismiss = async (id) => {
@@ -326,7 +378,7 @@ export default function Insights() {
             </div>
 
             {/* Insights Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-8 border-t border-slate-200">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 {insights.map((card) => (
                     <Card key={card.id} className="relative overflow-hidden border-slate-200 shadow-sm hover:shadow-md transition-shadow">
                         {card.is_new && (
@@ -403,6 +455,86 @@ export default function Insights() {
                         </Button>
                     </CardContent>
                 </Card>
+            </div>
+
+            {/* Spending Breakdown */}
+            <div className="pt-8 border-t border-slate-200">
+                <div className="space-y-6">
+                    <div>
+                        <h2 className="text-lg font-bold text-slate-900">Spending Breakdown</h2>
+                        <p className="text-sm text-slate-500">Analyze your spending across different dimensions</p>
+                    </div>
+
+                    <Tabs defaultValue="categories" className="w-full">
+                        <TabsList className="bg-slate-100 p-1 mb-6">
+                            <TabsTrigger value="categories">Categories</TabsTrigger>
+                            <TabsTrigger value="merchants">Merchants</TabsTrigger>
+                            <TabsTrigger value="people">People</TabsTrigger>
+                            <TabsTrigger value="locations">Locations</TabsTrigger>
+                        </TabsList>
+
+                        {['categories', 'merchants', 'people', 'locations'].map((tab) => (
+                            <div key={tab}>
+                                <TabsContent value={tab} className="mt-0">
+                                    <div className="rounded-xl border border-slate-200 overflow-hidden">
+                                        <table className="w-full">
+                                            <thead className="bg-slate-50 border-b border-slate-200">
+                                                <tr>
+                                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider w-1/3">Name</th>
+                                                    <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider w-1/3">% Spend</th>
+                                                    <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Money Spend</th>
+                                                    <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">% Change</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-200 bg-white">
+                                                {getAggregatedData(tab).map((item, i) => (
+                                                    <tr key={i} className="hover:bg-slate-50 transition-colors">
+                                                        <td className="px-6 py-4">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 text-xs font-bold">
+                                                                    {item.name.substring(0, 2).toUpperCase()}
+                                                                </div>
+                                                                <span className="font-medium text-slate-900">{item.name}</span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                                                                    <div
+                                                                        className="h-full bg-slate-900 rounded-full"
+                                                                        style={{ width: `${item.percent}%` }}
+                                                                    />
+                                                                </div>
+                                                                <span className="text-xs font-medium text-slate-500 w-12">{item.percent.toFixed(1)}%</span>
+                                                            </div>
+                                                        </td>
+                                                        <td className="px-6 py-4 text-right">
+                                                            <span className="font-medium text-slate-900">
+                                                                ${item.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-6 py-4 text-right">
+                                                            <div className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-1 rounded-full ${Number(item.change) < 0 ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                                                                {Number(item.change) > 0 ? '+' : ''}{item.change}%
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                                {getAggregatedData(tab).length === 0 && (
+                                                    <tr>
+                                                        <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
+                                                            No data available for this period
+                                                        </td>
+                                                    </tr>
+                                                )}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </TabsContent>
+                            </div>
+                        ))}
+                    </Tabs>
+                </div>
             </div>
         </div>
     );

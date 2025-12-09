@@ -25,7 +25,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { supabase } from "@/api/supabaseClient";
-import { format, startOfMonth, parseISO } from 'date-fns';
+import { format, startOfMonth, parseISO, startOfWeek } from 'date-fns';
 
 export default function Insights() {
     const [chartType, setChartType] = useState('line');
@@ -37,6 +37,8 @@ export default function Insights() {
     const [monthCashback, setMonthCashback] = useState(0);
     const [chartData, setChartData] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
+    const [selectedMonth, setSelectedMonth] = useState('november');
+    const [grouping, setGrouping] = useState('daily');
 
     useEffect(() => {
         fetchData();
@@ -44,14 +46,29 @@ export default function Insights() {
 
     useEffect(() => {
         if (transactions.length > 0) {
-            const filtered = transactions.filter(t =>
-                t.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                t.to_company_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                t.from_company_name?.toLowerCase().includes(searchQuery.toLowerCase())
-            );
+            let filtered = transactions;
+
+            // Search Filter
+            if (searchQuery) {
+                filtered = filtered.filter(t =>
+                    t.description?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    t.to_company_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    t.from_company_name?.toLowerCase().includes(searchQuery.toLowerCase())
+                );
+            }
+
+            // Month Filter
+            if (selectedMonth !== 'all') {
+                filtered = filtered.filter(t => {
+                    const date = parseISO(t.created_date);
+                    const monthName = format(date, 'MMMM').toLowerCase();
+                    return monthName === selectedMonth.toLowerCase();
+                });
+            }
+
             processTransactionData(filtered);
         }
-    }, [searchQuery, transactions]);
+    }, [searchQuery, selectedMonth, grouping, transactions]);
 
     const fetchData = async () => {
         try {
@@ -109,10 +126,21 @@ export default function Insights() {
 
         // Prepare Chart Data (Group by Day)
         // Simplified grouping for demo
+        // Prepare Chart Data
         const grouped = data.reduce((acc, t) => {
-            const dateStr = format(parseISO(t.created_date), 'MMM d');
-            if (!acc[dateStr]) acc[dateStr] = 0;
-            acc[dateStr] += Number(t.amount);
+            const date = parseISO(t.created_date);
+            let key;
+
+            if (grouping === 'daily') {
+                key = format(date, 'MMM d');
+            } else if (grouping === 'weekly') {
+                key = format(startOfWeek(date), 'MMM d');
+            } else if (grouping === 'monthly') {
+                key = format(date, 'MMM yyyy');
+            }
+
+            if (!acc[key]) acc[key] = 0;
+            acc[key] += Number(t.amount);
             return acc;
         }, {});
 
@@ -246,7 +274,7 @@ export default function Insights() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <Select defaultValue="november">
+                        <Select value={selectedMonth} onValueChange={setSelectedMonth}>
                             <SelectTrigger className="w-[140px] bg-white border-slate-200">
                                 <div className="flex items-center gap-2 text-slate-600">
                                     <Calendar className="w-4 h-4" />
@@ -254,12 +282,14 @@ export default function Insights() {
                                 </div>
                             </SelectTrigger>
                             <SelectContent>
+                                <SelectItem value="all">All Months</SelectItem>
                                 <SelectItem value="november">November</SelectItem>
                                 <SelectItem value="october">October</SelectItem>
+                                <SelectItem value="december">December</SelectItem>
                             </SelectContent>
                         </Select>
 
-                        <Select defaultValue="daily">
+                        <Select value={grouping} onValueChange={setGrouping}>
                             <SelectTrigger className="w-[120px] bg-white border-slate-200">
                                 <SelectValue />
                             </SelectTrigger>
@@ -286,11 +316,17 @@ export default function Insights() {
                                     ${monthSpend.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                 </h2>
                             </div>
-                            <div>
-                                <p className="text-sm font-medium text-slate-500 mb-1">This Month's Cashback</p>
-                                <h2 className="text-2xl font-bold text-emerald-500">
-                                    ${monthCashback.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                </h2>
+                            <div className="relative group cursor-help">
+                                <div className="opacity-50 transition-opacity group-hover:opacity-30">
+                                    <h2 className="text-2xl font-bold text-emerald-500">
+                                        ${monthCashback.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                    </h2>
+                                </div>
+                                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <span className="bg-slate-900 text-white text-xs px-2 py-1 rounded font-medium shadow-lg whitespace-nowrap">
+                                        Cashback Coming Soon
+                                    </span>
+                                </div>
                             </div>
                         </div>
 

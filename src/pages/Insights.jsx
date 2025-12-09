@@ -25,7 +25,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { supabase } from "@/api/supabaseClient";
-import { format, startOfMonth, parseISO, groupBy } from 'date-fns';
+import { format, startOfMonth, parseISO } from 'date-fns';
 
 export default function Insights() {
     const [chartType, setChartType] = useState('line');

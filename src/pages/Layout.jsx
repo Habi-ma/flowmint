@@ -33,16 +33,16 @@ import {
 
 const navigationItems = [
   {
-    title: "Dashboard",
-    url: createPageUrl("Dashboard"),
-    icon: LayoutDashboard,
-    description: "Overview & Analytics"
-  },
-  {
     title: "Insights",
     url: createPageUrl("Insights"),
     icon: Lightbulb,
     description: "Smart Recommendations"
+  },
+  {
+    title: "Dashboard",
+    url: createPageUrl("Dashboard"),
+    icon: LayoutDashboard,
+    description: "Overview & Analytics"
   },
   {
     title: "Companies",

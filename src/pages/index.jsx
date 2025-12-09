@@ -47,7 +47,7 @@ function PagesContent() {
             <Route path="/" element={
                 <ProtectedRoute>
                     <Layout currentPageName={currentPage}>
-                        <Dashboard />
+                        <Insights />
                     </Layout>
                 </ProtectedRoute>
             } />

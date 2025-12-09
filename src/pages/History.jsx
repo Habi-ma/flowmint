@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  History, 
-  Search, 
-  Download, 
-  ArrowUpRight, 
+import {
+  History,
+  Search,
+  Download,
+  ArrowUpRight,
   ArrowDownLeft,
   Filter,
   Calendar,
@@ -30,7 +30,7 @@ export default function TransactionHistory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     status: "all",
-    dateRange: "all",
+    dateRange: undefined,
     company: "all",
     minAmount: "",
     maxAmount: ""
@@ -81,8 +81,8 @@ export default function TransactionHistory() {
 
     // Company filter
     if (filters.company !== "all") {
-      filtered = filtered.filter(transaction => 
-        transaction.from_company_id === filters.company || 
+      filtered = filtered.filter(transaction =>
+        transaction.from_company_id === filters.company ||
         transaction.to_company_id === filters.company
       );
     }
@@ -96,29 +96,17 @@ export default function TransactionHistory() {
     }
 
     // Date range filter
-    if (filters.dateRange !== "all") {
-      const now = new Date();
-      let startDate;
-      
-      switch (filters.dateRange) {
-        case "today":
-          startDate = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-          break;
-        case "week":
-          startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-          break;
-        case "month":
-          startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-          break;
-        default:
-          startDate = null;
-      }
-      
-      if (startDate) {
-        filtered = filtered.filter(transaction => 
-          new Date(transaction.created_date) >= startDate
-        );
-      }
+    if (filters.dateRange?.from) {
+      const fromDate = new Date(filters.dateRange.from);
+      fromDate.setHours(0, 0, 0, 0);
+
+      const toDate = filters.dateRange.to ? new Date(filters.dateRange.to) : new Date(filters.dateRange.from);
+      toDate.setHours(23, 59, 59, 999);
+
+      filtered = filtered.filter(transaction => {
+        const transactionDate = new Date(transaction.created_date);
+        return transactionDate >= fromDate && transactionDate <= toDate;
+      });
     }
 
     setFilteredTransactions(filtered);
@@ -142,8 +130,8 @@ export default function TransactionHistory() {
       const headers = Object.keys(exportData[0]);
       const csvContent = [
         headers.join(','),
-        ...exportData.map(row => 
-          headers.map(header => 
+        ...exportData.map(row =>
+          headers.map(header =>
             JSON.stringify(row[header] || '')
           ).join(',')
         )
@@ -176,7 +164,7 @@ export default function TransactionHistory() {
             <h1 className="text-3xl font-bold text-slate-900 mb-2">Transaction History</h1>
             <p className="text-slate-600 text-lg">Complete record of all USDC payments and transfers</p>
           </div>
-          
+
           <Button
             onClick={exportTransactions}
             disabled={isExporting || filteredTransactions.length === 0}
@@ -188,7 +176,7 @@ export default function TransactionHistory() {
         </motion.div>
 
         {/* Stats Overview */}
-        <TransactionStats 
+        <TransactionStats
           transactions={filteredTransactions}
           isLoading={isLoading}
         />
@@ -211,9 +199,9 @@ export default function TransactionHistory() {
               />
             </div>
           </div>
-          
-          <TransactionFilters 
-            filters={filters} 
+
+          <TransactionFilters
+            filters={filters}
             onFilterChange={setFilters}
             companies={companies}
           />
@@ -232,7 +220,7 @@ export default function TransactionHistory() {
               {isLoading ? "Loading..." : `${filteredTransactions.length} transactions found`}
             </span>
           </div>
-          
+
           {filteredTransactions.length > 0 && (
             <div className="text-sm text-slate-600">
               Total Volume: <span className="font-semibold text-blue-600">

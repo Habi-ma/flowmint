@@ -1,7 +1,12 @@
 import React from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Filter, DollarSign } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Filter, DollarSign, Calendar as CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 export default function TransactionFilters({ filters, onFilterChange, companies }) {
   const handleFilterChange = (key, value) => {
@@ -17,9 +22,9 @@ export default function TransactionFilters({ filters, onFilterChange, companies 
         <Filter className="w-4 h-4 text-slate-500" />
         <span className="text-sm font-medium text-slate-700">Filters:</span>
       </div>
-      
-      <Select 
-        value={filters.status} 
+
+      <Select
+        value={filters.status}
         onValueChange={(value) => handleFilterChange('status', value)}
       >
         <SelectTrigger className="w-32 bg-white">
@@ -33,23 +38,45 @@ export default function TransactionFilters({ filters, onFilterChange, companies 
         </SelectContent>
       </Select>
 
-      <Select 
-        value={filters.dateRange} 
-        onValueChange={(value) => handleFilterChange('dateRange', value)}
-      >
-        <SelectTrigger className="w-32 bg-white">
-          <SelectValue placeholder="Date Range" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="all">All Time</SelectItem>
-          <SelectItem value="today">Today</SelectItem>
-          <SelectItem value="week">This Week</SelectItem>
-          <SelectItem value="month">This Month</SelectItem>
-        </SelectContent>
-      </Select>
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            id="date"
+            variant={"outline"}
+            className={cn(
+              "w-[260px] justify-start text-left font-normal bg-white border-slate-200",
+              !filters.dateRange && "text-muted-foreground"
+            )}
+          >
+            <CalendarIcon className="mr-2 h-4 w-4" />
+            {filters.dateRange?.from ? (
+              filters.dateRange.to ? (
+                <>
+                  {format(filters.dateRange.from, "LLL dd, y")} -{" "}
+                  {format(filters.dateRange.to, "LLL dd, y")}
+                </>
+              ) : (
+                format(filters.dateRange.from, "LLL dd, y")
+              )
+            ) : (
+              <span>Pick a date range</span>
+            )}
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-auto p-0" align="start">
+          <Calendar
+            initialFocus
+            mode="range"
+            defaultMonth={filters.dateRange?.from}
+            selected={filters.dateRange}
+            onSelect={(range) => handleFilterChange('dateRange', range)}
+            numberOfMonths={2}
+          />
+        </PopoverContent>
+      </Popover>
 
-      <Select 
-        value={filters.company} 
+      <Select
+        value={filters.company}
         onValueChange={(value) => handleFilterChange('company', value)}
       >
         <SelectTrigger className="w-40 bg-white">

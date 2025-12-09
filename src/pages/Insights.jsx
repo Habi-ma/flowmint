@@ -15,7 +15,6 @@ import {
     Check,
     X,
     Search,
-    Calendar,
     Download
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,6 +26,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { supabase } from "@/api/supabaseClient";
 import { format, startOfMonth, parseISO, startOfWeek } from 'date-fns';
 import TransactionTable from "../components/history/TransactionTable";
+import DateRangeNavigator from "@/components/common/DateRangeNavigator";
 
 export default function Insights() {
     const [chartType, setChartType] = useState('line');
@@ -39,7 +39,8 @@ export default function Insights() {
     const [monthCashback, setMonthCashback] = useState(0);
     const [chartData, setChartData] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedMonth, setSelectedMonth] = useState('november');
+    const [dateRange, setDateRange] = useState(undefined);
+    const [dateMode, setDateMode] = useState('custom');
     const [grouping, setGrouping] = useState('daily');
 
     const [users, setUsers] = useState({});
@@ -61,19 +62,24 @@ export default function Insights() {
                 );
             }
 
-            // Month Filter
-            if (selectedMonth !== 'all') {
-                filtered = filtered.filter(t => {
-                    const date = parseISO(t.created_date);
-                    const monthName = format(date, 'MMMM').toLowerCase();
-                    return monthName === selectedMonth.toLowerCase();
+            // Date Range Filter
+            if (dateRange?.from) {
+                const fromDate = new Date(dateRange.from);
+                fromDate.setHours(0, 0, 0, 0);
+
+                const toDate = dateRange.to ? new Date(dateRange.to) : new Date(dateRange.from);
+                toDate.setHours(23, 59, 59, 999);
+
+                filtered = filtered.filter(transaction => {
+                    const transactionDate = new Date(transaction.created_date);
+                    return transactionDate >= fromDate && transactionDate <= toDate;
                 });
             }
 
             setFilteredTransactions(filtered);
             processTransactionData(filtered);
         }
-    }, [searchQuery, selectedMonth, grouping, transactions]);
+    }, [searchQuery, dateRange, grouping, transactions]);
 
     const fetchData = async () => {
         try {
@@ -173,7 +179,8 @@ export default function Insights() {
 
     const getAggregatedData = (type) => {
         const data = {};
-        const sourceData = filteredTransactions.length > 0 || (searchQuery || selectedMonth !== 'all') ? filteredTransactions : transactions;
+        // Use filteredTransactions directly as it's already filtered by date and search
+        const sourceData = filteredTransactions;
         const total = sourceData.reduce((acc, t) => acc + Number(t.amount), 0);
 
         sourceData.forEach(t => {
@@ -246,20 +253,12 @@ export default function Insights() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-                            <SelectTrigger className="w-[140px] bg-white border-slate-200">
-                                <div className="flex items-center gap-2 text-slate-600">
-                                    <Calendar className="w-4 h-4" />
-                                    <SelectValue />
-                                </div>
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Months</SelectItem>
-                                <SelectItem value="november">November</SelectItem>
-                                <SelectItem value="october">October</SelectItem>
-                                <SelectItem value="december">December</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <DateRangeNavigator
+                            dateRange={dateRange}
+                            dateMode={dateMode}
+                            onDateRangeChange={setDateRange}
+                            onDateModeChange={setDateMode}
+                        />
 
                         <Select value={grouping} onValueChange={setGrouping}>
                             <SelectTrigger className="w-[120px] bg-white border-slate-200">

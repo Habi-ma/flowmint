@@ -1,6 +1,7 @@
 import Layout from "./Layout.jsx";
 import Login from "./Login.jsx";
 import Dashboard from "./Dashboard";
+import Insights from "./Insights";
 import Companies from "./Companies";
 import Payments from "./Payments";
 import History from "./History";
@@ -12,6 +13,7 @@ import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-route
 const PAGES = {
     Login: Login,
     Dashboard: Dashboard,
+    Insights: Insights,
     Companies: Companies,
     Payments: Payments,
     History: History,
@@ -35,12 +37,12 @@ function _getCurrentPage(url) {
 function PagesContent() {
     const location = useLocation();
     const currentPage = _getCurrentPage(location.pathname);
-    
+
     return (
         <Routes>
             {/* Public route */}
             <Route path="/login" element={<Login />} />
-            
+
             {/* Protected routes */}
             <Route path="/" element={
                 <ProtectedRoute>
@@ -49,7 +51,7 @@ function PagesContent() {
                     </Layout>
                 </ProtectedRoute>
             } />
-            
+
             <Route path="/dashboard" element={
                 <ProtectedRoute>
                     <Layout currentPageName={currentPage}>
@@ -57,7 +59,15 @@ function PagesContent() {
                     </Layout>
                 </ProtectedRoute>
             } />
-            
+
+            <Route path="/insights" element={
+                <ProtectedRoute>
+                    <Layout currentPageName={currentPage}>
+                        <Insights />
+                    </Layout>
+                </ProtectedRoute>
+            } />
+
             <Route path="/companies" element={
                 <ProtectedRoute>
                     <Layout currentPageName={currentPage}>
@@ -65,7 +75,7 @@ function PagesContent() {
                     </Layout>
                 </ProtectedRoute>
             } />
-            
+
             <Route path="/payments" element={
                 <ProtectedRoute>
                     <RoleBasedRoute allowedRoles={['company_admin', 'company_user']} redirectTo="Dashboard">
@@ -75,7 +85,7 @@ function PagesContent() {
                     </RoleBasedRoute>
                 </ProtectedRoute>
             } />
-            
+
             <Route path="/history" element={
                 <ProtectedRoute>
                     <Layout currentPageName={currentPage}>
@@ -83,7 +93,7 @@ function PagesContent() {
                     </Layout>
                 </ProtectedRoute>
             } />
-            
+
             <Route path="/register" element={
                 <ProtectedRoute>
                     <RoleBasedRoute allowedRoles={['back_office_admin']} redirectTo="Dashboard">

@@ -3,17 +3,18 @@ import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useAuthToken } from "@/hooks/useAuthToken";
-import { 
-  LayoutDashboard, 
-  Building2, 
-  Send, 
-  History, 
+import {
+  LayoutDashboard,
+  Building2,
+  Send,
+  History,
   Wallet,
   TrendingUp,
   Shield,
   LogOut,
   User,
-  UserPlus
+  UserPlus,
+  Lightbulb
 } from "lucide-react";
 import {
   Sidebar,
@@ -36,6 +37,12 @@ const navigationItems = [
     url: createPageUrl("Dashboard"),
     icon: LayoutDashboard,
     description: "Overview & Analytics"
+  },
+  {
+    title: "Insights",
+    url: createPageUrl("Insights"),
+    icon: Lightbulb,
+    description: "Smart Recommendations"
   },
   {
     title: "Companies",
@@ -66,7 +73,7 @@ const navigationItems = [
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   const { user, userProfile, logout } = useAuth();
-  
+
   // Automatically set auth token for API requests
   useAuthToken();
 
@@ -94,7 +101,7 @@ export default function Layout({ children, currentPageName }) {
           --warning-amber: #f59e0b;
         }
       `}</style>
-      
+
       <SidebarProvider>
         <div className="flex w-full">
           <Sidebar className="border-r border-slate-200/50 bg-white/80 backdrop-blur-sm">
@@ -112,7 +119,7 @@ export default function Layout({ children, currentPageName }) {
                 </div>
               </div>
             </SidebarHeader>
-            
+
             <SidebarContent className="p-3">
               <SidebarGroup>
                 <SidebarGroupLabel className="text-xs font-semibold text-slate-500 uppercase tracking-wider px-3 py-2">
@@ -122,13 +129,12 @@ export default function Layout({ children, currentPageName }) {
                   <SidebarMenu>
                     {filteredNavigationItems.map((item) => (
                       <SidebarMenuItem key={item.title}>
-                        <SidebarMenuButton 
-                          asChild 
-                          className={`group relative overflow-hidden transition-all duration-200 rounded-xl mb-1 ${
-                            location.pathname === item.url 
-                              ? 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 shadow-sm' 
+                        <SidebarMenuButton
+                          asChild
+                          className={`group relative overflow-hidden transition-all duration-200 rounded-xl mb-1 ${location.pathname === item.url
+                              ? 'bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700 shadow-sm'
                               : 'hover:bg-slate-50 text-slate-600 hover:text-slate-900'
-                          }`}
+                            }`}
                         >
                           <Link to={item.url} className="flex items-center gap-3 px-4 py-3">
                             <item.icon className="w-5 h-5 flex-shrink-0" />
@@ -174,8 +180,8 @@ export default function Layout({ children, currentPageName }) {
                 {/* User Info */}
                 <div className="flex items-center gap-3 p-3 rounded-xl bg-gradient-to-r from-slate-50 to-slate-100">
                   {user?.picture ? (
-                    <img 
-                      src={user.picture} 
+                    <img
+                      src={user.picture}
                       alt={user.name}
                       className="w-10 h-10 rounded-full"
                     />
@@ -193,7 +199,7 @@ export default function Layout({ children, currentPageName }) {
                     </p>
                   </div>
                 </div>
-                
+
                 {/* Logout Button */}
                 <button
                   onClick={logout}

@@ -70,9 +70,11 @@ function PagesContent() {
 
             <Route path="/companies" element={
                 <ProtectedRoute>
-                    <Layout currentPageName={currentPage}>
-                        <Companies />
-                    </Layout>
+                    <RoleBasedRoute allowedRoles={['back_office_admin']} redirectTo="Dashboard">
+                        <Layout currentPageName={currentPage}>
+                            <Companies />
+                        </Layout>
+                    </RoleBasedRoute>
                 </ProtectedRoute>
             } />
 

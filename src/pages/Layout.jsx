@@ -87,6 +87,10 @@ export default function Layout({ children, currentPageName }) {
     if (item.title === "Register Company") {
       return userProfile?.user_role === 'back_office_admin';
     }
+    // Show Companies only to back-office users
+    if (item.title === "Companies") {
+      return userProfile?.user_role === 'back_office_admin';
+    }
     return true;
   });
 

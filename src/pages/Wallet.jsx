@@ -143,31 +143,59 @@ export default function Wallet() {
                 <CardDescription>Breakdown of your digital currency holdings</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="h-[300px] w-full flex items-center justify-center">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={assetData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={90}
-                        fill="#8884d8"
-                        paddingAngle={assetData.length > 1 ? 5 : 0}
-                        dataKey="value"
-                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                      >
-                        {assetData.map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        formatter={(value) => `$${value.toLocaleString()}`}
-                        contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e2e8f0' }}
-                      />
-                      <Legend verticalAlign="bottom" height={36} />
-                    </PieChart>
-                  </ResponsiveContainer>
+                <div className="flex flex-col md:flex-row items-start justify-between gap-8 h-[300px]">
+                  {/* Chart */}
+                  <div className="w-full md:w-2/3 h-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={assetData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={90}
+                          fill="#8884d8"
+                          paddingAngle={assetData.length > 1 ? 5 : 0}
+                          dataKey="value"
+                        >
+                          {assetData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          formatter={(value, name, props) => {
+                            const total = assetData.reduce((a, b) => a + b.value, 0);
+                            const percent = total > 0 ? (value / total) * 100 : 0;
+                            return [`$${value.toLocaleString()} (${percent.toFixed(0)}%)`, name];
+                          }}
+                          contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e2e8f0' }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  {/* Custom Legend */}
+                  <div className="w-full md:w-1/3 space-y-2 pt-4">
+                    {assetData.map((entry, index) => {
+                      const total = assetData.reduce((acc, curr) => acc + curr.value, 0);
+                      const percentage = total > 0 ? (entry.value / total) * 100 : 0;
+
+                      return (
+                        <div key={index} className="flex items-center justify-between p-2 rounded-lg bg-slate-50 hover:bg-slate-100 transition-colors">
+                          <div className="flex items-center gap-2">
+                            <div
+                              className="w-2.5 h-2.5 rounded-full"
+                              style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                            />
+                            <span className="font-medium text-sm text-slate-600">{entry.name}</span>
+                          </div>
+                          <div className="text-right">
+                            {/* Details hidden as per request, shown on hover */}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </CardContent>
             </Card>

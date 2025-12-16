@@ -4,11 +4,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { User } from '@/api/entities';
 import { createPageUrl } from '@/utils';
 
-const RoleBasedRoute = ({ 
-  children, 
-  allowedRoles = [], 
-  redirectTo = 'Dashboard',
-  fallbackComponent = null 
+const RoleBasedRoute = ({
+  children,
+  allowedRoles = [],
+  redirectTo = 'Insights',
+  fallbackComponent = null
 }) => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
@@ -27,13 +27,13 @@ const RoleBasedRoute = ({
         // Fetch user profile from the users table
         const profile = await User.getByEmail(user.email);
         setUserProfile(profile);
-        
+
         // Check if user has required role
-        const hasRequiredRole = allowedRoles.length === 0 || 
-                               allowedRoles.includes(profile.user_role);
-        
+        const hasRequiredRole = allowedRoles.length === 0 ||
+          allowedRoles.includes(profile.user_role);
+
         setHasAccess(hasRequiredRole);
-        
+
         if (!hasRequiredRole) {
           console.log(`Access denied. User role: ${profile.user_role}, Required roles: ${allowedRoles.join(', ')}`);
           navigate(createPageUrl(redirectTo));

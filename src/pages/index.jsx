@@ -1,6 +1,6 @@
 import Layout from "./Layout.jsx";
 import Login from "./Login.jsx";
-import Dashboard from "./Dashboard";
+import Wallet from "./Wallet";
 import Insights from "./Insights";
 import Companies from "./Companies";
 import Payments from "./Payments";
@@ -12,7 +12,7 @@ import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-route
 
 const PAGES = {
     Login: Login,
-    Dashboard: Dashboard,
+    Wallet: Wallet,
     Insights: Insights,
     Companies: Companies,
     Payments: Payments,
@@ -52,11 +52,13 @@ function PagesContent() {
                 </ProtectedRoute>
             } />
 
-            <Route path="/dashboard" element={
+            <Route path="/wallet" element={
                 <ProtectedRoute>
-                    <Layout currentPageName={currentPage}>
-                        <Dashboard />
-                    </Layout>
+                    <RoleBasedRoute allowedRoles={['company_admin', 'company_user']} redirectTo="Companies">
+                        <Layout currentPageName={currentPage}>
+                            <Wallet />
+                        </Layout>
+                    </RoleBasedRoute>
                 </ProtectedRoute>
             } />
 
@@ -70,7 +72,7 @@ function PagesContent() {
 
             <Route path="/companies" element={
                 <ProtectedRoute>
-                    <RoleBasedRoute allowedRoles={['back_office_admin']} redirectTo="Dashboard">
+                    <RoleBasedRoute allowedRoles={['back_office_admin']} redirectTo="Wallet">
                         <Layout currentPageName={currentPage}>
                             <Companies />
                         </Layout>
@@ -80,7 +82,7 @@ function PagesContent() {
 
             <Route path="/payments" element={
                 <ProtectedRoute>
-                    <RoleBasedRoute allowedRoles={['company_admin', 'company_user']} redirectTo="Dashboard">
+                    <RoleBasedRoute allowedRoles={['company_admin', 'company_user']} redirectTo="Wallet">
                         <Layout currentPageName={currentPage}>
                             <Payments />
                         </Layout>
@@ -98,7 +100,7 @@ function PagesContent() {
 
             <Route path="/register" element={
                 <ProtectedRoute>
-                    <RoleBasedRoute allowedRoles={['back_office_admin']} redirectTo="Dashboard">
+                    <RoleBasedRoute allowedRoles={['back_office_admin']} redirectTo="Wallet">
                         <Layout currentPageName={currentPage}>
                             <Register />
                         </Layout>

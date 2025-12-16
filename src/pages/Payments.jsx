@@ -9,11 +9,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Send, 
-  ArrowLeft, 
-  Wallet, 
-  CheckCircle, 
+import {
+  Send,
+  ArrowLeft,
+  Wallet,
+  CheckCircle,
   AlertCircle,
   Building2,
   DollarSign
@@ -202,7 +202,7 @@ export default function Payments() {
                   <p className="text-slate-600 mb-6">
                     Your USDC payment has been successfully processed via Circle's infrastructure.
                   </p>
-                  
+
                   <div className="bg-slate-50 rounded-lg p-4 mb-6 space-y-2">
                     <div className="flex justify-between">
                       <span className="text-slate-600">Amount:</span>
@@ -235,10 +235,10 @@ export default function Payments() {
                       Send Another
                     </Button>
                     <Button
-                      onClick={() => navigate(createPageUrl("Dashboard"))}
+                      onClick={() => navigate(createPageUrl("Wallet"))}
                       className="flex-1 bg-blue-600 hover:bg-blue-700"
                     >
-                      Back to Dashboard
+                      Back to Wallet
                     </Button>
                   </div>
                 </CardContent>

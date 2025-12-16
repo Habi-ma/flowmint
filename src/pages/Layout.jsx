@@ -39,28 +39,28 @@ const navigationItems = [
     description: "Smart Recommendations"
   },
   {
+    title: "Wallet",
+    url: createPageUrl("Wallet"),
+    icon: Wallet,
+    description: "Asset Management"
+  },
+  {
     title: "Transaction History",
     url: createPageUrl("History"),
     icon: History,
     description: "Payment Records"
   },
   {
-    title: "Dashboard",
-    url: createPageUrl("Dashboard"),
-    icon: LayoutDashboard,
-    description: "Overview & Analytics"
+    title: "Send Payment",
+    url: createPageUrl("Payments"),
+    icon: Send,
+    description: "Transfer USDC"
   },
   {
     title: "Companies",
     url: createPageUrl("Companies"),
     icon: Building2,
     description: "Business Directory"
-  },
-  {
-    title: "Send Payment",
-    url: createPageUrl("Payments"),
-    icon: Send,
-    description: "Transfer USDC"
   },
   {
     title: "Register Company",
@@ -90,6 +90,10 @@ export default function Layout({ children, currentPageName }) {
     // Show Companies only to back-office users
     if (item.title === "Companies") {
       return userProfile?.user_role === 'back_office_admin';
+    }
+    // Hide Wallet from back-office users
+    if (item.title === "Wallet") {
+      return userProfile?.user_role !== 'back_office_admin';
     }
     return true;
   });

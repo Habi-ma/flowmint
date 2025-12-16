@@ -7,7 +7,7 @@ export const Company = {
     let query = supabase
       .from('companies')
       .select('*');
-    
+
     // Handle sorting
     if (sortBy.startsWith('-')) {
       const field = sortBy.substring(1);
@@ -15,18 +15,18 @@ export const Company = {
     } else {
       query = query.order(sortBy, { ascending: true });
     }
-    
+
     // Handle limit
     if (limit) {
       query = query.limit(limit);
     }
-    
+
     const { data, error } = await query;
-    
+
     if (error) {
       throw new Error(`Error fetching companies: ${error.message}`);
     }
-    
+
     return data || [];
   },
 
@@ -41,19 +41,19 @@ export const Company = {
       .from('companies')
       .select('*')
       .eq('id', id);
-    
+
     if (error) {
       throw new Error(`Error fetching company: ${error.message}`);
     }
-    
+
     if (!data || data.length === 0) {
       throw new Error(`Company with ID ${id} not found or access denied`);
     }
-    
+
     if (data.length > 1) {
       throw new Error(`Multiple companies found with ID ${id}`);
     }
-    
+
     return data[0];
   },
 
@@ -63,15 +63,15 @@ export const Company = {
       .from('companies')
       .insert([companyData])
       .select();
-    
+
     if (error) {
       throw new Error(`Error creating company: ${error.message}`);
     }
-    
+
     if (!data || data.length === 0) {
       throw new Error('Failed to create company');
     }
-    
+
     return data[0];
   },
 
@@ -82,15 +82,15 @@ export const Company = {
       .update(updates)
       .eq('id', id)
       .select();
-    
+
     if (error) {
       throw new Error(`Error updating company: ${error.message}`);
     }
-    
+
     if (!data || data.length === 0) {
       throw new Error(`Company with ID ${id} not found or access denied`);
     }
-    
+
     return data[0];
   },
 
@@ -100,11 +100,11 @@ export const Company = {
       .from('companies')
       .delete()
       .eq('id', id);
-    
+
     if (error) {
       throw new Error(`Error deleting company: ${error.message}`);
     }
-    
+
     return true;
   },
 
@@ -113,31 +113,31 @@ export const Company = {
     let query = supabase
       .from('companies')
       .select('*');
-    
+
     // Add text search
     if (searchTerm) {
       query = query.or(`company_name.ilike.%${searchTerm}%,business_email.ilike.%${searchTerm}%,contact_person.ilike.%${searchTerm}%`);
     }
-    
+
     // Add filters
     if (filters.industry && filters.industry !== 'all') {
       query = query.eq('industry', filters.industry);
     }
-    
+
     if (filters.status && filters.status !== 'all') {
       query = query.eq('registration_status', filters.status);
     }
-    
+
     if (filters.kyc_status && filters.kyc_status !== 'all') {
       query = query.eq('kyc_status', filters.kyc_status);
     }
-    
+
     const { data, error } = await query.order('created_date', { ascending: false });
-    
+
     if (error) {
       throw new Error(`Error searching companies: ${error.message}`);
     }
-    
+
     return data || [];
   },
 
@@ -146,31 +146,31 @@ export const Company = {
     let query = supabase
       .from('company_basic_info')
       .select('*');
-    
+
     // Add text search
     if (searchTerm) {
       query = query.or(`company_name.ilike.%${searchTerm}%,business_email.ilike.%${searchTerm}%,contact_person.ilike.%${searchTerm}%`);
     }
-    
+
     // Add filters
     if (filters.industry && filters.industry !== 'all') {
       query = query.eq('industry', filters.industry);
     }
-    
+
     if (filters.status && filters.status !== 'all') {
       query = query.eq('registration_status', filters.status);
     }
-    
+
     if (filters.kyc_status && filters.kyc_status !== 'all') {
       query = query.eq('kyc_status', filters.kyc_status);
     }
-    
+
     const { data, error } = await query.order('company_name', { ascending: true });
-    
+
     if (error) {
       throw new Error(`Error searching companies: ${error.message}`);
     }
-    
+
     return data || [];
   }
 };
@@ -186,7 +186,7 @@ export const Transaction = {
         from_company:companies!from_company_id(company_name),
         to_company:companies!to_company_id(company_name)
       `);
-    
+
     // Handle sorting
     if (sortBy.startsWith('-')) {
       const field = sortBy.substring(1);
@@ -194,18 +194,18 @@ export const Transaction = {
     } else {
       query = query.order(sortBy, { ascending: true });
     }
-    
+
     // Handle limit
     if (limit) {
       query = query.limit(limit);
     }
-    
+
     const { data, error } = await query;
-    
+
     if (error) {
       throw new Error(`Error fetching transactions: ${error.message}`);
     }
-    
+
     return data || [];
   },
 
@@ -219,15 +219,15 @@ export const Transaction = {
         to_company:companies!to_company_id(company_name)
       `)
       .eq('id', id);
-    
+
     if (error) {
       throw new Error(`Error fetching transaction: ${error.message}`);
     }
-    
+
     if (!data || data.length === 0) {
       throw new Error(`Transaction with ID ${id} not found or access denied`);
     }
-    
+
     return data[0];
   },
 
@@ -241,15 +241,15 @@ export const Transaction = {
         from_company:companies!from_company_id(company_name),
         to_company:companies!to_company_id(company_name)
       `);
-    
+
     if (error) {
       throw new Error(`Error creating transaction: ${error.message}`);
     }
-    
+
     if (!data || data.length === 0) {
       throw new Error('Failed to create transaction');
     }
-    
+
     return data[0];
   },
 
@@ -264,15 +264,15 @@ export const Transaction = {
         from_company:companies!from_company_id(company_name),
         to_company:companies!to_company_id(company_name)
       `);
-    
+
     if (error) {
       throw new Error(`Error updating transaction: ${error.message}`);
     }
-    
+
     if (!data || data.length === 0) {
       throw new Error(`Transaction with ID ${id} not found or access denied`);
     }
-    
+
     return data[0];
   },
 
@@ -287,17 +287,17 @@ export const Transaction = {
       `)
       .or(`from_company_id.eq.${companyId},to_company_id.eq.${companyId}`)
       .order('created_date', { ascending: false });
-    
+
     if (limit) {
       query = query.limit(limit);
     }
-    
+
     const { data, error } = await query;
-    
+
     if (error) {
       throw new Error(`Error fetching company transactions: ${error.message}`);
     }
-    
+
     return data || [];
   },
 
@@ -306,17 +306,17 @@ export const Transaction = {
     let query = supabase
       .from('transactions')
       .select('amount, status, created_date');
-    
+
     if (companyId) {
       query = query.or(`from_company_id.eq.${companyId},to_company_id.eq.${companyId}`);
     }
-    
+
     const { data, error } = await query;
-    
+
     if (error) {
       throw new Error(`Error fetching transaction stats: ${error.message}`);
     }
-    
+
     const stats = {
       total: data.length,
       completed: data.filter(t => t.status === 'completed').length,
@@ -325,13 +325,16 @@ export const Transaction = {
       totalVolume: data
         .filter(t => t.status === 'completed')
         .reduce((sum, t) => sum + (t.amount || 0), 0),
+      pendingVolume: data
+        .filter(t => t.status === 'pending')
+        .reduce((sum, t) => sum + (t.amount || 0), 0),
       averageAmount: 0
     };
-    
+
     if (stats.completed > 0) {
       stats.averageAmount = stats.totalVolume / stats.completed;
     }
-    
+
     return stats;
   }
 };
@@ -372,7 +375,7 @@ export const Payment = {
     try {
       // Get sender company data
       const fromCompany = await Company.get(paymentData.from_company_id);
-      
+
       // Validate sufficient funds
       if (fromCompany.wallet_balance < parseFloat(paymentData.amount)) {
         throw new Error('Insufficient funds');
@@ -407,7 +410,7 @@ export const Payment = {
       };
 
       const transaction = await Transaction.create(transactionData);
-      
+
       // Update sender's wallet balance
       await Company.update(paymentData.from_company_id, {
         wallet_balance: fromCompany.wallet_balance - parseFloat(paymentData.amount)
@@ -442,22 +445,22 @@ export const User = {
         *,
         company:companies(id, company_name, wallet_balance)
       `);
-    
+
     if (error) {
       throw new Error(`Error fetching user: ${error.message}`);
     }
-    
+
     if (!data || data.length === 0) {
       throw new Error('User not found or access denied');
     }
-    
+
     return data[0];
   },
 
   // Get user by email
   getByEmail: async (email) => {
     const { data: { user: authUser } } = await supabase.auth.getUser();
-    
+
     if (!authUser) {
       throw new Error('User not authenticated');
     }
@@ -471,15 +474,15 @@ export const User = {
       .eq('email', email)
       .eq('is_active', true)
       .single();
-    
+
     if (error) {
       throw new Error(`Error fetching user: ${error.message}`);
     }
-    
+
     if (!data) {
       throw new Error('User not found or access denied');
     }
-    
+
     return data;
   },
 
@@ -492,15 +495,15 @@ export const User = {
         *,
         company:companies(id, company_name, wallet_balance)
       `);
-    
+
     if (error) {
       throw new Error(`Error creating user: ${error.message}`);
     }
-    
+
     if (!data || data.length === 0) {
       throw new Error('Failed to create user');
     }
-    
+
     return data[0];
   },
 
@@ -514,15 +517,15 @@ export const User = {
         *,
         company:companies(id, company_name, wallet_balance)
       `);
-    
+
     if (error) {
       throw new Error(`Error updating user: ${error.message}`);
     }
-    
+
     if (!data || data.length === 0) {
       throw new Error(`User with ID ${id} not found or access denied`);
     }
-    
+
     return data[0];
   }
 };

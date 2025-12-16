@@ -109,26 +109,26 @@ export default function Wallet() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-8 text-white shadow-xl"
+              className="bg-white rounded-2xl p-8 shadow-sm border border-slate-200"
             >
               <div className="flex items-center gap-4 mb-6">
-                <div className="p-3 bg-white/10 rounded-xl">
-                  <WalletIcon className="w-8 h-8 text-blue-400" />
+                <div className="p-3 bg-blue-50 rounded-xl">
+                  <WalletIcon className="w-8 h-8 text-blue-600" />
                 </div>
                 <div>
-                  <p className="text-slate-400 font-medium">Total Balance</p>
-                  <h2 className="text-4xl font-bold mt-1">${totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
+                  <p className="text-slate-500 font-medium">Total Balance</p>
+                  <h2 className="text-4xl font-bold mt-1 text-slate-900">${totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</h2>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 pt-6 border-t border-white/10">
+              <div className="grid grid-cols-2 gap-4 pt-6 border-t border-slate-100">
                 <div>
-                  <p className="text-slate-400 text-sm">Available for Transfer</p>
-                  <p className="text-xl font-semibold mt-1">${totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                  <p className="text-slate-500 text-sm">Available for Transfer</p>
+                  <p className="text-xl font-semibold mt-1 text-slate-900">${totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
                 </div>
                 <div>
-                  <p className="text-slate-400 text-sm">Pending Settlements</p>
-                  <p className="text-xl font-semibold mt-1">${stats.pendingVolume.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                  <p className="text-slate-500 text-sm">Pending Settlements</p>
+                  <p className="text-xl font-semibold mt-1 text-slate-900">${stats.pendingVolume.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
                 </div>
               </div>
             </motion.div>
@@ -153,8 +153,9 @@ export default function Wallet() {
                         innerRadius={60}
                         outerRadius={90}
                         fill="#8884d8"
-                        paddingAngle={5}
+                        paddingAngle={assetData.length > 1 ? 5 : 0}
                         dataKey="value"
+                        label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                       >
                         {assetData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />

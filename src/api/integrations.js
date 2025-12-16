@@ -2,22 +2,22 @@ import { supabase } from './supabaseClient';
 
 // Core integration functions
 export const Core = {
-  // Get dashboard data
-  getDashboardData: async () => {
+  // Get wallet data
+  getWalletData: async () => {
     try {
       const { data: companies, error: companiesError } = await supabase
         .from('companies')
         .select('*');
-      
+
       const { data: transactions, error: transactionsError } = await supabase
         .from('transactions')
         .select('*')
         .order('created_date', { ascending: false })
         .limit(10);
-      
+
       if (companiesError) throw companiesError;
       if (transactionsError) throw transactionsError;
-      
+
       return {
         companies: companies || [],
         transactions: transactions || []
@@ -35,9 +35,9 @@ export const Core = {
         .from('transactions')
         .select('amount, status, created_date')
         .or(`from_company_id.eq.${companyId},to_company_id.eq.${companyId}`);
-      
+
       if (error) throw error;
-      
+
       const stats = {
         totalTransactions: transactions.length,
         completedTransactions: transactions.filter(t => t.status === 'completed').length,
@@ -46,11 +46,11 @@ export const Core = {
           .reduce((sum, t) => sum + (t.amount || 0), 0),
         averageAmount: 0
       };
-      
+
       if (stats.completedTransactions > 0) {
         stats.averageAmount = stats.totalVolume / stats.completedTransactions;
       }
-      
+
       return stats;
     } catch (error) {
       console.error('Error fetching company stats:', error);

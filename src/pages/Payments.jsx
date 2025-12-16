@@ -132,7 +132,7 @@ export default function Payments() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => navigate(createPageUrl("Dashboard"))}
+            onClick={() => navigate(createPageUrl("Wallet"))}
             className="hover:bg-slate-100"
           >
             <ArrowLeft className="w-4 h-4" />

@@ -3,10 +3,10 @@ import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { 
-  CheckCircle, 
-  Wallet, 
-  Building2, 
+import {
+  CheckCircle,
+  Wallet,
+  Building2,
   Shield,
   Copy,
   ArrowRight,
@@ -62,7 +62,7 @@ export default function RegistrationSuccess({ company, onContinue }) {
                 <Wallet className="w-5 h-5 text-green-500" />
                 <span className="font-semibold text-slate-700">USDC Wallet Created</span>
               </div>
-              
+
               <div className="space-y-2">
                 <p className="text-sm text-slate-600">Wallet Address:</p>
                 <div className="flex items-center gap-2 bg-slate-50 p-3 rounded-lg">
@@ -119,7 +119,7 @@ export default function RegistrationSuccess({ company, onContinue }) {
             onClick={onContinue}
             className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-base font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
           >
-            Go to Dashboard
+            Go to Companies
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
         </CardContent>

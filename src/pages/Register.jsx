@@ -2,9 +2,9 @@ import { useState } from "react";
 import { Company } from "@/api/entities";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { 
-  ArrowLeft, 
-  CheckCircle, 
+import {
+  ArrowLeft,
+  CheckCircle,
   AlertCircle,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -42,7 +42,7 @@ export default function RegisterCompany() {
 
   const validateStep = (step) => {
     setError('');
-    
+
     switch (step) {
       case 1:
         if (!formData.company_name.trim()) {
@@ -62,7 +62,7 @@ export default function RegisterCompany() {
           return false;
         }
         return true;
-        
+
       case 2:
         if (!formData.contact_person.trim()) {
           setError('Contact person name is required');
@@ -77,7 +77,7 @@ export default function RegisterCompany() {
           return false;
         }
         return true;
-        
+
       default:
         return true;
     }
@@ -96,14 +96,14 @@ export default function RegisterCompany() {
 
   const submitRegistration = async () => {
     if (!validateStep(2)) return;
-    
+
     setIsSubmitting(true);
     setError('');
 
     try {
       // Generate mock wallet address (in real app, Circle API would create this)
       const walletAddress = `0x${Math.random().toString(16).substr(2, 40)}`;
-      
+
       const companyData = {
         ...formData,
         wallet_address: walletAddress,
@@ -136,7 +136,7 @@ export default function RegisterCompany() {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => navigate(createPageUrl("Dashboard"))}
+            onClick={() => navigate(createPageUrl("Wallet"))}
             className="hover:bg-slate-100"
           >
             <ArrowLeft className="w-4 h-4" />
@@ -162,11 +162,10 @@ export default function RegisterCompany() {
                 >
                   <div className="flex flex-col items-center">
                     <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-200 ${
-                        currentStep >= step.id
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-slate-200 text-slate-600'
-                      }`}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all duration-200 ${currentStep >= step.id
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-slate-200 text-slate-600'
+                        }`}
                     >
                       {currentStep > step.id ? (
                         <CheckCircle className="w-5 h-5" />
@@ -175,26 +174,24 @@ export default function RegisterCompany() {
                       )}
                     </div>
                     <div className="mt-2 text-center">
-                      <p className={`text-sm font-medium ${
-                        currentStep >= step.id ? 'text-slate-900' : 'text-slate-500'
-                      }`}>
+                      <p className={`text-sm font-medium ${currentStep >= step.id ? 'text-slate-900' : 'text-slate-500'
+                        }`}>
                         {step.title}
                       </p>
                       <p className="text-xs text-slate-500">{step.description}</p>
                     </div>
                   </div>
-                  
+
                   {index < REGISTRATION_STEPS.length - 1 && (
                     <div className="flex-1 mx-4">
-                      <div className={`h-1 rounded-full transition-all duration-200 ${
-                        currentStep > step.id ? 'bg-blue-600' : 'bg-slate-200'
-                      }`} />
+                      <div className={`h-1 rounded-full transition-all duration-200 ${currentStep > step.id ? 'bg-blue-600' : 'bg-slate-200'
+                        }`} />
                     </div>
                   )}
                 </div>
               ))}
             </div>
-            
+
             <div className="w-full bg-slate-200 rounded-full h-2">
               <motion.div
                 className="bg-blue-600 h-2 rounded-full transition-all duration-300"
@@ -238,7 +235,7 @@ export default function RegisterCompany() {
         {currentStep === 4 && registeredCompany && (
           <RegistrationSuccess
             company={registeredCompany}
-            onContinue={() => navigate(createPageUrl("Dashboard"))}
+            onContinue={() => navigate(createPageUrl("Companies"))}
           />
         )}
       </div>

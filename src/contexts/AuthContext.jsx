@@ -24,13 +24,13 @@ export const AuthProvider = ({ children }) => {
   const fetchUserProfile = async (userEmail) => {
     try {
       if (!userEmail) return null;
-      
+
       const profile = await User.getByEmail(userEmail);
       setUserProfile(profile);
-      
+
       // Cache the profile in localStorage
       localStorage.setItem('userProfile', JSON.stringify(profile));
-      
+
       return profile;
     } catch (error) {
       console.error('Error fetching user profile:', error);
@@ -45,11 +45,11 @@ export const AuthProvider = ({ children }) => {
       try {
         // Check if there's an existing Supabase session
         const { data: { session }, error } = await supabase.auth.getSession();
-        
+
         if (session && !error) {
           setUser(session.user);
           setAccessToken(session.access_token);
-          
+
           // Check if we have cached user profile in localStorage
           const cachedProfile = localStorage.getItem('userProfile');
           if (cachedProfile) {
@@ -93,7 +93,7 @@ export const AuthProvider = ({ children }) => {
         if (session) {
           setUser(session.user);
           setAccessToken(session.access_token);
-          
+
           // Check if we have cached user profile in localStorage
           const cachedProfile = localStorage.getItem('userProfile');
           if (cachedProfile) {
@@ -129,12 +129,12 @@ export const AuthProvider = ({ children }) => {
     try {
       // Use Supabase to sign in with Google
       const { data, error } = await signInWithGoogle(token);
-      
+
       if (error) {
         console.error('Login error:', error);
         return { success: false, error };
       }
-      
+
       // The auth state change listener will handle updating user state
       return { success: true, error: null };
     } catch (error) {
@@ -180,10 +180,10 @@ export const GoogleLoginButton = () => {
     try {
       // Use the Google credential directly with Supabase
       const result = await login(null, credentialResponse.credential);
-      
+
       if (result.success) {
-        // Navigate to dashboard after successful login
-        navigate('/Dashboard');
+        // Navigate to wallet after successful login
+        navigate('/insights');
       } else {
         console.error('Login failed:', result.error);
       }
